@@ -1,11 +1,6 @@
 
 .mapWrapper {
     position: relative;
-    /*
-    Do math with the height of your iframe divided by the width, then converted to percent
-    In this example the height is 400 and the width is 600
-    400 / 600 = .66666667
-    which is 66.6666667% */
     padding-bottom: 66.6666667%;
     height: 0;
 
