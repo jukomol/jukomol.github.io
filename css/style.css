@@ -3284,6 +3284,7 @@ h6 {
 /* End Footer Area css
 ============================================================================================ */
 /*Blinking RED DOT */
+
 .blinking {
   -webkit-animation: 1s blink ease infinite;
   -moz-animation: 1s blink ease infinite;
