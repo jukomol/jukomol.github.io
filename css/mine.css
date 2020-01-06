@@ -408,10 +408,10 @@ p {
   text-decoration: none;
   display: inline-block;
   font-size: 12px;
-  margin: 4px 2px;
+  margin: 2px 2px;
   cursor: pointer;
   width:100%;
-  border-radius: 20px;
+  border-radius: 10px;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
 }
