@@ -1,4 +1,0 @@
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Error: Undefined variable: \"$dip\".\A         on line 234 of scss/_home.scss\A         from line 54 of scss/style.scss"; }
