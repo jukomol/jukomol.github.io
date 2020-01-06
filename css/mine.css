@@ -175,7 +175,7 @@ hr {
     height: 60px;
     width: 3px;
     background-color: #404040;
-    margin-left: 260px;
+    margin-left: 50%;
 }
 
 .tm-timeline-description {
@@ -183,7 +183,7 @@ hr {
     vertical-align: middle;
     border-radius: 20px;
     padding: 35px 40px;
-    max-width: 712px;
+    width: 100%;
 }
 
 .tm-section-mb {
@@ -477,3 +477,10 @@ p {
       margin-bottom: 0; }
     .footer_area .footer_bottom a {
       color: #854fee; }
+
+      #rcorners2 {
+        border-radius:50%;
+        background:;
+        padding: 0px;
+        width: 180px;
+        height: 190px;
