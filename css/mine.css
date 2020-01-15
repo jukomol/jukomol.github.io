@@ -479,11 +479,11 @@ p {
       color: #854fee; }
 
       #rcorners2 {
-        border-radius:50%;
+        border-radius:100%;
         background:;
         padding: 0px;
-        width: 180px;
-        height: 190px;
+        width: 140px;
+        height: 140px;
       }
 
       #rcorners3 {
