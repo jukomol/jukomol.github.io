@@ -6,6 +6,7 @@ body {
 	background-image: url(img/body.jpg);
 	font-family: Georgia, "Times New Roman", Times, serif;
 	font-size: 100%;
+	text-align: justify;
 }
 
 /*---------------- Main structure --------------*/
@@ -57,6 +58,7 @@ p {
 	padding-top: 15px;
 	padding-bottom: 15px;
 	color: #814F2C;
+	text-align: justify;
 }
 
 p.center {
