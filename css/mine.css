@@ -261,6 +261,10 @@ textarea,
     caret-color: #FFFFFF;
 }
 
+.blog p {
+    line-height: 1.9;
+    text-align: justify;
+}
 p {
     line-height: 1.9;
 }
