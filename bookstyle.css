@@ -4,7 +4,7 @@
 
 body {
 	background-image: url(img/body.jpg);
-	font-family: Georgia, "Times New Roman", Times, serif;
+	font-family: Georgia, "Times New Roman", Times, serif, "CharuChandan3D";
 	font-size: 100%;
 	text-align: justify;
 }
@@ -78,8 +78,7 @@ h1 {
 
 h3 {
 	font-family: "Times New Roman", Times, serif;
-	font-size: 1.6em;
-	font-style: italic;
+	font-size: 1.4em;
 	color: #926B4A;
 	text-align: center;
 }
@@ -90,10 +89,10 @@ margin-bottom: 15px;
 
 h5 {
 	font-family: "Times New Roman", Times, serif;
-	font-size: 1.2em;
-	font-style: italic;
+	font-size: 1em;
 	color: #926B4A;
 	text-align: center;
+	padding-top: 3px;
 }
 
 
