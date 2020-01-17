@@ -218,6 +218,7 @@ line-height:normal;
 text-align: justify;
 overflow-x: hidden;
 color:#000000;
+line-height: inherit;
 }
 
 #content .content_instance .content_right p
