@@ -224,8 +224,8 @@ line-height: inherit;
 #content .content_instance .content_right p
 {
 text-align:justify;
-font-size:14px;
-line-height:16px;
+font-size:15px;
+line-height:absolute;
 color:#000000;
 }
 
