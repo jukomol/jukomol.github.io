@@ -221,6 +221,27 @@ color:#000000;
 line-height: inherit;
 }
 
+#content .content_instance_body .content_right ol
+{
+	padding-top:;
+	padding-right:20px;
+	padding-left:20px;
+	padding-bottom:;
+
+text-align:justify;
+font-size:17px;
+line-height:normal;
+text-align: justify;
+overflow-x: hidden;
+color:#000000;
+line-height: inherit;
+}
+
+
+
+
+
+
 #content .content_instance .content_right p
 {
 text-align:justify;
