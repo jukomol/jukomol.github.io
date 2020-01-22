@@ -183,7 +183,7 @@ hr {
     vertical-align: middle;
     border-radius: 20px;
     padding: 35px 40px;
-    width: 100%;
+    width: fit-content;
 }
 
 .tm-section-mb {
