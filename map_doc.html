@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="myblogstyle.css" />
+    <link rel="icon" href="img/favicon.png" type="image/png">
+<title>Mapping Doc</title>
+</head>
+<body>
+  <div id="content">
+    <div class="content_top">
+      <h1 class="pl-4 tm-site-title"><a href="index.html"><img src="img\logo-black.png" width="170" height="30" alt="logo"></h1></a>
+      <a href="myblog.html"><h1>M Y B L O G</h1></a>
+        </div>
+        <div class="content_instance_body">
+          <img src="img/navit.png" />
+          <div class="content_right">
+        <h2>MT MAP</h2>
+        <p>
+        For offline navigation of MT we will use raspberry pi 3B and GMouse gps.
+        First of all, our task is to start GPSD. To do that simply install gpsd. open
+        the terminal and enter<br>
+        <br>
+        sudo apt-get install gpsd gpsd-clients python-gps <br>
+        sudo systemctl stop gpsd.socket<br>
+        sudo systemctl disable gpsd.socket<br><br>
+
+        Now test, gpsd. Goto terminal and type<br><br> CGPS -s<br><br>
+
+        Our next job is to download navit from here. Now install it manually, through terminal.
+
+
+
+        <ol type="i">
+           <li>Memory management is good</li>
+         </ol>
+       </p>
+       <p>
+         However, here is my fedora desktop: <br>
+       </p>
+         <ol type="i">
+        jukomol@syncx
+
+        OS: Fedora release 33 (Thirty Three) x86_6
+        Host: TUF GAMING FX504GE_FX80GE 1.0
+        Kernel: 5.9.16-200.fc33.x86_64
+        Uptime: 1 hour, 16 mins
+        Packages: 1937 (rpm), 1 (flatpak)
+        Shell: bash 5.0.17
+        Resolution: 1440x900
+        DE: GNOME 3.38.2
+        WM: Mutter
+        WM Theme: Adwaita
+        Theme: Adwaita-dark [GTK2/3]
+        Icons: Adwaita [GTK2/3]
+        Terminal: gnome-terminal
+        CPU: Intel i7-8750H (12) @ 4.100GHz
+        GPU: Intel UHD Graphics 630
+        GPU: NVIDIA GeForce GTX 1050 Ti Mobile
+        Memory: 6913MiB / 15858MiB
+      </ol>
+        <br>
+        <p>I installed gloriousegg's karnel and tweaked the desktop to make it a little bit fancy.</p>
+          <p style="text-align:right;">  <font color="#333300" >Updated : 7th January 2021</font> </p>
+
+          <!--==================================================================================================================================-->
+            </div>
+      </div>
+  </div>
+</body>
+</html>
