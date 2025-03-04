@@ -505,3 +505,16 @@ p {
         margin-right: auto;
         width:70%;
       }
+
+
+
+      .cv-box {
+        background-color: #353333;
+        padding: 15px;
+        border-radius: 15px;
+        display: inline-block;
+        margin: 10px 0;
+    }
+    .cv-box p {
+        margin: 0;
+    }
