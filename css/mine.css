@@ -596,12 +596,12 @@ p {
     .vertical-navbar {
         left: 10%;
         transform: translate(-50%, -50%);
-        width: 60px;
+        width: 50px;
         transition: width 0.3s ease-in-out;
     }
 
     .vertical-navbar:hover {
-        width: 60px;
+        width: 50px;
     }
 
     .container {
