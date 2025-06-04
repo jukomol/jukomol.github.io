@@ -262,25 +262,6 @@ a:hover {
   color: white;
 }
 
-/* Footer alignment */
-.footer_area h6 {
-  color: #ffffff;
-  letter-spacing: 2px;
-  font-size: 16px;
-  margin-bottom: 15px;
-}
-
-.footer_social a {
-  color: #4fe1c9;
-  margin: 0 12px;
-  font-size: 22px;
-  transition: transform 0.3s ease;
-}
-
-.footer_social a:hover {
-  transform: scale(1.2);
-  color: #ffffff;
-}
 
 
 .tm-section-mb {
@@ -1006,3 +987,5 @@ html, body {
   width: 100%;
   overflow-x: hidden;
 }
+
+
