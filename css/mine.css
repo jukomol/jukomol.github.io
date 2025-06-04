@@ -493,11 +493,13 @@ p {
 }
 
 .center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px; /* spacing between buttons */
+  margin-top: 20px;
 }
+
 
 /* button */
 
@@ -604,20 +606,17 @@ p {
 
 
 .button {
-  display: block;
-  width: 300px;
-  margin: 10px auto;
-  padding: 12px 20px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #333;
-  background-color: #fff;
-  border: none;
-  border-radius: 10px;
+  border: 2px solid #4fe1c9;
+  background-color: transparent;
+  color: white;
+  padding: 10px 20px;
   text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  position: relative;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 200px;
+  transition: 0.3s;
 }
 
 
@@ -645,6 +644,9 @@ p {
   transform: translateY(10px);
   animation: fadeUp 0.6s ease forwards;
 }
+
+
+
 
 .button:nth-child(1) { animation-delay: 0.1s; }
 .button:nth-child(2) { animation-delay: 0.2s; }
