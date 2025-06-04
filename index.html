@@ -52,7 +52,11 @@
 
 
 
-                   <img src="img/quotes.png" alt="quotes" class="center">
+<div id="quote-container" class="quote-box center">
+  <!-- JavaScript will inject quote content here -->
+</div>
+
+
 
 
 
@@ -106,6 +110,48 @@
     <script src="js/jquery.min.js"></script>
     <!-- <script src="js/jquery-3.2.1.slim.min.js"></script> -->
     <script src="js/ju.js"></script>
+
+    <script>
+  const quotes = [
+    {
+      text: "Behind this mask there is more than just flesh. Beneath this mask there is an idea… and ideas are bulletproof.",
+      author: "V for Vendetta"
+    },
+    {
+      text: "The only true wisdom is in knowing you know nothing.",
+      author: "Socrates"
+    },
+    {
+      text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+      author: "Aristotle"
+    },
+    {
+      text: "Not all those who wander are lost.",
+      author: "J.R.R. Tolkien"
+    },
+    {
+      text: "In the middle of difficulty lies opportunity.",
+      author: "Albert Einstein"
+    }
+  ];
+
+  function getRandomQuote() {
+    return quotes[Math.floor(Math.random() * quotes.length)];
+  }
+
+  function renderQuote() {
+    const { text, author } = getRandomQuote();
+    document.getElementById('quote-container').innerHTML = `
+      <p class="quote-text">
+        <span class="quote-mark">“</span>${text}<span class="quote-mark closing">”</span>
+      </p>
+      <p class="quote-author">– <em>${author}</em></p>
+    `;
+  }
+
+  document.addEventListener("DOMContentLoaded", renderQuote);
+</script>
+
 
 </body>
 </html>

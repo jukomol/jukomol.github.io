@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="/css/font-awesome.min.css">
       <link rel="icon" href="/img/favicon.png" type="image/png">
 <title>MYBLOG : JU KOMOL</title>
-</head>
 
+</head>
 <body>
   <nav class="vertical-navbar">
     <ul class="nav-links">
@@ -20,6 +20,11 @@
         <li><a href="https://github.com/jukomol"><i class="fa fa-github"></i><span class="nav-text"> GitHub</span></a></li>
     </ul>
 </nav>
+
+<div id="content">
+  <div class="content_top">
+  <h1>M Y B L O G</h1>
+</div>
 <!--
 <div id="page">
         <div id="header">
@@ -27,15 +32,9 @@
             <h2>The Space Race was an informal competition between the United States and the Soviet Union to see who could make the furthest advancements into space first. It involved the efforts to explore outer space with artificial satellites, to send man into space, and to land him on the Moon.</h2>
    </div>
 -->
-        <div id="content">
-        	<div class="content_top">
-            
-            <h1>M Y B L O G</h1>
-            </div>
-
-
+<div id="tag-filter"></div>
             <!--====================================================================================================================-->
-            <div class="content_instance">
+            <div class="content_instance" data-tags="Linux,English">
               <a href="/html/fedora.html"><img src="/img/fedora.png" /></a>
                 <div class="content_right">
               <a href="/html/fedora.html"><h2>fedora</h2></a>
@@ -69,7 +68,7 @@
                 </div>
             </div>
 <!--====================================================================================================================-->
-            <div class="content_instance">
+            <div class="content_instance" data-tags="Personal">
             	<a href="/html/ekti_swapno.html"><img src="/img/digital_dream_still_a_dream_in_rural_bangladesh.jpg" /></a>
                 <div class="content_right">
             	<a href="/html/ekti_swapno.html"><h2>একটি স্বপ্ন</h2></a>
@@ -83,6 +82,91 @@
 
 <!--====================================================================================================================-->
   </div>
+  <script src="/js/blog.js"></script>
+  <script>
+  const tagContainer = document.getElementById('tag-filter');
+  const posts = document.querySelectorAll('.content_instance');
+  const selectedTags = new Set();
+
+  // Extract all tags
+  const tagSet = new Set();
+  posts.forEach(post => {
+    post.dataset.tags.split(',').forEach(tag => tagSet.add(tag.trim()));
+  });
+
+  // Add "All" button manually
+  tagContainer.innerHTML = `<button class="tag-btn active" data-tag="all">All</button>`;
+
+  // Add other tag buttons
+  tagSet.forEach(tag => {
+    tagContainer.innerHTML += `<button class="tag-btn" data-tag="${tag}">${tag}</button>`;
+  });
+
+  const tagButtons = document.querySelectorAll('.tag-btn');
+
+  function filterPosts() {
+    posts.forEach(post => {
+      const postTags = post.dataset.tags.split(',').map(tag => tag.trim());
+      const shouldShow =
+        selectedTags.size === 0 || [...selectedTags].some(tag => postTags.includes(tag));
+      post.style.opacity = 0;
+      setTimeout(() => {
+        post.style.display = shouldShow ? 'block' : 'none';
+        post.style.opacity = shouldShow ? 1 : 0;
+      }, 150);
+    });
+
+    // Update URL
+    const query = selectedTags.size ? `?tags=${[...selectedTags].join(',')}` : '';
+    history.replaceState(null, '', query);
+  }
+
+  // Handle tag button click
+  tagButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tag = button.dataset.tag;
+
+      if (tag === 'all') {
+        selectedTags.clear();
+        tagButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+      } else {
+        document.querySelector('[data-tag="all"]').classList.remove('active');
+
+        button.classList.toggle('active');
+        if (button.classList.contains('active')) {
+          selectedTags.add(tag);
+        } else {
+          selectedTags.delete(tag);
+        }
+
+        // If no tag selected, fallback to "All"
+        if (selectedTags.size === 0) {
+          document.querySelector('[data-tag="all"]').classList.add('active');
+        }
+      }
+
+      filterPosts();
+    });
+  });
+
+  // Handle URL-based filtering on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlTags = urlParams.get('tags');
+  if (urlTags) {
+    const tagsFromUrl = urlTags.split(',');
+    tagsFromUrl.forEach(tag => {
+      const btn = document.querySelector(`.tag-btn[data-tag="${tag}"]`);
+      if (btn) {
+        btn.classList.add('active');
+        selectedTags.add(tag);
+      }
+    });
+    document.querySelector('[data-tag="all"]').classList.remove('active');
+    filterPosts();
+  }
+</script>
+
 
 </body>
 </html>
