@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fedora Blog : JU KOMOL</title>
+  
+  <link rel="icon" href="/img/favicon.png" type="image/png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/mine.css">
+  <link rel="stylesheet" href="/css/myblogstyle.css">
+</head>
+
+<body>
+  <!-- Fixed Vertical Navbar -->
+  <nav class="vertical-navbar">
+    <ul class="nav-links">
+      <li><a href="/index.html"><i class="fa fa-home"></i><span class="nav-text"> Home</span></a></li>
+      <li><a href="/html/portfolio.html"><i class="fa fa-user"></i><span class="nav-text"> About Me</span></a></li>
+      <li><a href="/html/myblog.html"><i class="fa fa-pencil"></i><span class="nav-text"> Blog</span></a></li>
+      <li><a href="/html/logs.html"><i class="fa fa-book"></i><span class="nav-text"> Logs</span></a></li>
+      <li><a href="/html/material.html"><i class="fa fa-folder"></i><span class="nav-text"> Resources</span></a></li>
+      <li><a href="https://github.com/jukomol"><i class="fa fa-github"></i><span class="nav-text"> GitHub</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- Page Content -->
+<main class="container mt-4" id="content">
+  <div class="text-center mb-4">
+    <h1 class="display-4">
+      <a href="/html/myblog.html" class="blog-title-link">M Y B L O G</a>
+    </h1>
+  </div>
+
+
+<div class="content_instance_body">
+  <img src="/img/cctv.png" alt="Webcam CCTV Screenshot" class="img-fluid center" />
+  <div class="content_right">
+    <h2>Building a Webcam CCTV Recorder Using Flask</h2>
+
+    <p>
+      In this blog post, I walk you through the design and development of a lightweight CCTV system using a regular webcam and a Flask-based Python web app. This application serves live video through a web browser, records hourly footage automatically, and lets you view and download those recordings with ease.
+    </p>
+
+    <h3>💡 Key Features</h3>
+    <ul>
+      <li>Live MJPEG stream from your webcam</li>
+      <li>Automatic hourly recording with timestamped filenames</li>
+      <li>Start and stop recording from the browser</li>
+      <li>Explore saved recordings within the web interface</li>
+      <li>Runs efficiently on Docker and compatible with Windows</li>
+    </ul>
+
+    <h3>⚙️ System Architecture</h3>
+    <p>
+      The app leverages Python’s threading to keep recording and streaming parallel. OpenCV handles camera input and frame encoding, while Flask powers the server and routes. I used a shared buffer protected by a lock to avoid conflicts between the stream and recorder.
+    </p>
+
+    <h3>📁 Recording Directory</h3>
+    <p>
+      All videos are saved in <code>static/recordings</code>. Each file is encoded using MP4V at 30 FPS and stored as a separate hour-long segment.
+    </p>
+
+    <h3>🧪 Challenges</h3>
+    <ul>
+      <li>Proper threading to avoid deadlocks and broken feeds</li>
+      <li>Ensuring clean start/stop toggling of the recording logic</li>
+      <li>Docker compatibility and OpenCV camera device mapping</li>
+    </ul>
+
+    <h3>🚀 Dockerized Deployment</h3>
+    <p>
+      The app runs in a Docker container with access to <code>/dev/video0</code>. This makes it portable and easy to deploy on edge devices or remote systems.
+    </p>
+
+    <h3>📷 My Setup</h3>
+    <pre>
+Host: TUF GAMING FX504GE
+OS: Windows 10 + WSL 2 (Docker)
+Camera: Built-in HD Webcam
+Python: 3.11
+Libraries: Flask, OpenCV </pre>
+    <p>
+      You can find the full project on <a href="https://github.com/jukomol/Webcam-CCTV-Recorder">GitHub</a>.
+    </p>
+
+    <p style="text-align:right;"><span style="color:#4fe1c9;">Updated : 10th June 2025</span></p>
+  </div>
+</div>
+  </main>
+</body>
+</html>
+
+  </div>
+</body>
+</html>
