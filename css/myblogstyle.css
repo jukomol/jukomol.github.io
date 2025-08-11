@@ -679,3 +679,38 @@ body.dark pre {
   color: #4fe1c9;          /* hover color */
   text-decoration: underline;
 }
+
+/* Comments Section Styling */
+.comments-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  border: 2px solid #4fe1c9;
+}
+
+.comments-container h3 {
+  color: #4fe1c9;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Giscus theme customization */
+.giscus, .giscus-frame {
+  width: 100%;
+}
+
+/* Ensure comments section looks good on mobile */
+@media screen and (max-width: 768px) {
+  .comments-container {
+    margin: 15px 0;
+    padding: 15px;
+  }
+  
+  .comments-container h3 {
+    font-size: 1.3rem;
+  }
+}
