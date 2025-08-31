@@ -3,7 +3,6 @@ name: Sync resume from Overleaf
 on:
   workflow_dispatch:
   schedule:
-    # Every 6 hours; tweak as needed
     - cron: "0 */6 * * *"
 
 permissions:
@@ -13,28 +12,62 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-
-
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate and sanitize Overleaf URLs
+        env:
+          OVERLEAF_VIEW_URL: ${{ secrets.OVERLEAF_VIEW_URL }}
+          OVERLEAF_DL_URL:   ${{ secrets.OVERLEAF_DL_URL }}
+        run: |
+          # Mask secrets in logs
+          echo "::add-mask::${OVERLEAF_VIEW_URL}"
+          echo "::add-mask::${OVERLEAF_DL_URL}"
+
+          # Sanitize: remove CR, trim trailing spaces
+          VIEW_URL="$(printf '%s' "$OVERLEAF_VIEW_URL" | tr -d '\r' | sed 's/[[:space:]]\+$//')"
+          DL_URL="$(printf '%s' "$OVERLEAF_DL_URL" | tr -d '\r' | sed 's/[[:space:]]\+$//')"
+
+          # Basic checks
+          [ -n "$VIEW_URL" ] || { echo "OVERLEAF_VIEW_URL is empty"; exit 1; }
+          [ -n "$DL_URL" ]   || { echo "OVERLEAF_DL_URL is empty"; exit 1; }
+
+          echo "VIEW_URL length: ${#VIEW_URL}"
+          echo "DL_URL length: ${#DL_URL}"
+
+          echo "$VIEW_URL" | grep -Eiq '^https?://' || { echo "OVERLEAF_VIEW_URL is not an http(s) URL"; exit 1; }
+          echo "$DL_URL"   | grep -Eiq '^https?://' || { echo "OVERLEAF_DL_URL is not an http(s) URL"; exit 1; }
+
+          # Export sanitized for later steps
+          {
+            echo "VIEW_URL=$VIEW_URL"
+            echo "DL_URL=$DL_URL"
+          } >> $GITHUB_ENV
+
+      - name: Probe Overleaf View (should be 200/3xx)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "$VIEW_URL")
+          echo "VIEW_STATUS=$STATUS"
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
+            echo "View URL returned HTTP $STATUS (sharing off or bad link?)" >&2
+            exit 1
+          fi
 
       - name: Fetch latest PDF via cookie session
         run: |
           mkdir -p tmp
-          # 1) Hit the VIEW page to obtain cookies
-          curl -sSL -A "Mozilla/5.0" -c tmp/cookies.txt "${OVERLEAF_VIEW_URL}" -o /dev/null
+          # 1) Hit the VIEW page to set cookies
+          curl -sSL -A "Mozilla/5.0" -c tmp/cookies.txt "$VIEW_URL" -o /dev/null
 
-          # 2) Download using those cookies
-          curl -fsSL -A "Mozilla/5.0" -b tmp/cookies.txt "${OVERLEAF_DL_URL}" -o tmp/resume.pdf
+          # 2) Download using cookies + Referer (emulate browser)
+          curl -fsSL -A "Mozilla/5.0" -e "$VIEW_URL" -b tmp/cookies.txt "$DL_URL" -o tmp/resume.pdf
 
+          # Verify it's a PDF
           file tmp/resume.pdf | grep -qi 'PDF' || (echo "Downloaded file is not a PDF"; exit 1)
-        env:
-          OVERLEAF_VIEW_URL: ${{ secrets.OVERLEAF_VIEW_URL }}
-          OVERLEAF_DL_URL: ${{ secrets.OVERLEAF_DL_URL }}
 
       - name: Compare and commit if changed
         run: |
-          DEST="files/Jahir_Uddin_resume.pdf"   # ← change to your site’s path if different
+          DEST="files/Jahir_Uddin_resume.pdf"
           mkdir -p "$(dirname "$DEST")"
 
           oldsum="missing"
@@ -46,11 +79,9 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add "$DEST"
-            git commit -m "Update resume.pdf from Overleaf"
+            git commit -m "Update Jahir_Uddin_resume.pdf from Overleaf"
             git push
             echo "updated=true" >> $GITHUB_OUTPUT
           else
             echo "No change."
           fi
-    env:
-      OVERLEAF_PDF_URL: ${{ secrets.OVERLEAF_PDF_URL }}
