@@ -13,14 +13,27 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+
+
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fetch latest PDF from Overleaf
+      - name: Probe Overleaf URL (status only)
+        run: |
+          echo "::add-mask::${OVERLEAF_PDF_URL}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "$OVERLEAF_PDF_URL")
+          echo "HTTP_STATUS=$STATUS"
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
+            echo "Overleaf returned HTTP $STATUS (sharing off? wrong link? not compiled?)." >&2
+            exit 1
+          fi
+
+      - name: Fetch latest PDF from Overleaf (browser UA)
         run: |
           mkdir -p tmp
-          curl -fsSL "$OVERLEAF_PDF_URL" -o tmp/resume.pdf
+          curl -fsSL -A "Mozilla/5.0" "$OVERLEAF_PDF_URL" -o tmp/resume.pdf
           file tmp/resume.pdf | grep -qi 'PDF' || (echo "Downloaded file is not a PDF"; exit 1)
+
 
       - name: Compare and commit if changed
         run: |
