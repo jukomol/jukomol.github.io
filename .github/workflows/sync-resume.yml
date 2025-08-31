@@ -27,10 +27,10 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Write downloader script
-    env:
-      OVERLEAF_VIEW_URL: ${{ secrets.OVERLEAF_VIEW_URL || vars.OVERLEAF_VIEW_URL }}
-      OVERLEAF_DL_TEXT:  ${{ secrets.OVERLEAF_DL_TEXT  || vars.OVERLEAF_DL_TEXT  || 'Download PDF' }}
-      run: |
+        env:
+          OVERLEAF_VIEW_URL: ${{ secrets.OVERLEAF_VIEW_URL || vars.OVERLEAF_VIEW_URL }}
+          OVERLEAF_DL_TEXT:  ${{ secrets.OVERLEAF_DL_TEXT  || vars.OVERLEAF_DL_TEXT  || 'Download PDF' }}
+        run: |
           echo "::add-mask::${OVERLEAF_VIEW_URL}"
           echo "::add-mask::${OVERLEAF_DL_TEXT}"
           cat > download-overleaf.mjs <<'EOF'
