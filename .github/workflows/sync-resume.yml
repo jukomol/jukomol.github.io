@@ -1,0 +1,46 @@
+name: Sync resume from Overleaf
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every 6 hours; tweak as needed
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch latest PDF from Overleaf
+        run: |
+          mkdir -p tmp
+          curl -fsSL "$OVERLEAF_PDF_URL" -o tmp/resume.pdf
+          file tmp/resume.pdf | grep -qi 'PDF' || (echo "Downloaded file is not a PDF"; exit 1)
+
+      - name: Compare and commit if changed
+        run: |
+          DEST="files/Jahir_Uddin_resume.pdf"   # ← change to your site’s path if different
+          mkdir -p "$(dirname "$DEST")"
+
+          oldsum="missing"
+          [ -f "$DEST" ] && oldsum=$(sha256sum "$DEST" | cut -d' ' -f1)
+          newsum=$(sha256sum tmp/resume.pdf | cut -d' ' -f1)
+
+          if [ "$oldsum" != "$newsum" ]; then
+            cp tmp/resume.pdf "$DEST"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$DEST"
+            git commit -m "Update resume.pdf from Overleaf"
+            git push
+            echo "updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "No change."
+          fi
+    env:
+      OVERLEAF_PDF_URL: ${{ secrets.OVERLEAF_PDF_URL }}
