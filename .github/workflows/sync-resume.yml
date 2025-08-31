@@ -18,22 +18,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Probe Overleaf URL (status only)
-        run: |
-          echo "::add-mask::${OVERLEAF_PDF_URL}"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "$OVERLEAF_PDF_URL")
-          echo "HTTP_STATUS=$STATUS"
-          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 400 ]; then
-            echo "Overleaf returned HTTP $STATUS (sharing off? wrong link? not compiled?)." >&2
-            exit 1
-          fi
-
-      - name: Fetch latest PDF from Overleaf (browser UA)
+      - name: Fetch latest PDF via cookie session
         run: |
           mkdir -p tmp
-          curl -fsSL -A "Mozilla/5.0" "$OVERLEAF_PDF_URL" -o tmp/resume.pdf
-          file tmp/resume.pdf | grep -qi 'PDF' || (echo "Downloaded file is not a PDF"; exit 1)
+          # 1) Hit the VIEW page to obtain cookies
+          curl -sSL -A "Mozilla/5.0" -c tmp/cookies.txt "${OVERLEAF_VIEW_URL}" -o /dev/null
 
+          # 2) Download using those cookies
+          curl -fsSL -A "Mozilla/5.0" -b tmp/cookies.txt "${OVERLEAF_DL_URL}" -o tmp/resume.pdf
+
+          file tmp/resume.pdf | grep -qi 'PDF' || (echo "Downloaded file is not a PDF"; exit 1)
+        env:
+          OVERLEAF_VIEW_URL: ${{ secrets.OVERLEAF_VIEW_URL }}
+          OVERLEAF_DL_URL: ${{ secrets.OVERLEAF_DL_URL }}
 
       - name: Compare and commit if changed
         run: |
