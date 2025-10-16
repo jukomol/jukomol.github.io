@@ -42,10 +42,10 @@ You need to change your repository's Pages settings to use **GitHub Actions** in
 
 To help prevent this issue and make the configuration clearer:
 
-1. **Added `.nojekyll` file**: This signals to GitHub Pages not to use Jekyll classic processing
+1. **Removed `.nojekyll` file**: This file was preventing Jekyll from processing the site. Since the site uses Jekyll with GitHub Actions, this file should not exist.
 2. **Updated Gemfile**: Added comments explaining why Jekyll 4.x is used
 3. **Enhanced README**: Added troubleshooting section for this specific error
-4. **Updated `_config.yml`**: Ensured `.nojekyll` is included in the build
+4. **Updated `_config.yml`**: Removed `.nojekyll` from the include list since it no longer exists
 
 ## Verification
 

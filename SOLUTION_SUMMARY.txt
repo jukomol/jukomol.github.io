@@ -29,11 +29,12 @@ STEP-BY-STEP INSTRUCTIONS:
 
 WHAT THIS PR DOES:
 ------------------
-✓ Added .nojekyll file to signal GitHub not to use classic Jekyll processing
+✓ Removed .nojekyll file that was preventing Jekyll from processing the site
 ✓ Updated Gemfile with comments explaining Jekyll 4.x requirement
 ✓ Enhanced README with troubleshooting section for this error
 ✓ Created GITHUB_PAGES_SETUP.md with detailed instructions
 ✓ Verified site builds correctly with Jekyll 4.x and Tailwind CSS
+✓ Updated _config.yml to remove .nojekyll from include list
 
 VERIFICATION:
 -------------
