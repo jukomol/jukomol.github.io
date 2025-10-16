@@ -35,7 +35,7 @@ You need to change your repository's Pages settings to use **GitHub Actions** in
    - Once you change the source to GitHub Actions, the next push will trigger a deployment
 
 6. **Push or trigger a deployment**:
-   - Either push a new commit to the `main` branch
+   - Either push a new commit to the `master` branch
    - Or go to Actions tab and manually run the "Build and Deploy" workflow
 
 ## What Was Changed in This PR
@@ -86,7 +86,7 @@ If you've changed the Pages source to "GitHub Actions" and are still experiencin
 
 1. Check the Actions tab for workflow run logs
 2. Ensure the workflow has permissions to deploy (already configured)
-3. Make sure the `main` branch has the latest changes
+3. Make sure the `master` branch has the latest changes
 4. Try manually triggering the workflow from the Actions tab
 
 ## References
