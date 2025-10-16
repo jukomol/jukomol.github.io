@@ -61,10 +61,6 @@ exclude:
   - .github/
   - README.md
 
-# Include dotfiles
-include:
-  - .nojekyll
-
 # Plugins
 plugins:
   - jekyll-feed
