@@ -136,7 +136,7 @@ jobs:
 
       - name: Compare and commit if changed
         run: |
-          DEST="files/Jahir_Uddin_resume.pdf"
+          DEST="assets/cv/Jahir_Uddin_CV.pdf"
           mkdir -p "$(dirname "$DEST")"
           oldsum="missing"
           [ -f "$DEST" ] && oldsum=$(sha256sum "$DEST" | cut -d' ' -f1)
@@ -160,3 +160,10 @@ jobs:
           path: |
             tmp/view.html
             tmp/view.png
+            
+      - name: Trigger Build & Deploy
+        if: success()
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-build

@@ -1,0 +1,93 @@
+---
+layout: default
+---
+
+<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <!-- Article Header -->
+  <header class="mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ page.title }}</h1>
+    
+    <div class="flex flex-wrap items-center gap-4 text-gray-600 mb-4">
+      {% if page.date %}
+        <time datetime="{{ page.date | date_to_xmlschema }}">
+          {{ page.date | date: "%B %d, %Y" }}
+        </time>
+      {% endif %}
+      
+      {% if page.author %}
+        <span>&middot;</span>
+        <span>{{ page.author }}</span>
+      {% endif %}
+      
+      {% if page.reading_time %}
+        <span>&middot;</span>
+        <span>{{ page.reading_time }} min read</span>
+      {% endif %}
+    </div>
+    
+    {% if page.tags %}
+      <div class="flex flex-wrap gap-2">
+        {% for tag in page.tags %}
+          <span class="tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </header>
+  
+  <!-- Article Content -->
+  <div class="prose prose-lg max-w-none mb-12">
+    {{ content }}
+  </div>
+  
+  <!-- Article Footer -->
+  <footer class="border-t border-gray-200 pt-8">
+    <!-- Share buttons could go here -->
+    
+    <!-- Navigation to previous/next posts -->
+    <div class="flex justify-between items-center">
+      <div>
+        {% if page.previous.url %}
+          <a href="{{ page.previous.url | relative_url }}" class="text-primary-700 hover:text-primary-900 font-medium">
+            &larr; {{ page.previous.title | truncate: 50 }}
+          </a>
+        {% endif %}
+      </div>
+      <div>
+        {% if page.next.url %}
+          <a href="{{ page.next.url | relative_url }}" class="text-primary-700 hover:text-primary-900 font-medium">
+            {{ page.next.title | truncate: 50 }} &rarr;
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Giscus Comments (Optional - Uncomment and configure) -->
+  <!--
+  <div class="mt-12 pt-12 border-t border-gray-200">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Comments</h2>
+    <script src="https://giscus.app/client.js"
+            data-repo="[ENTER REPO HERE]"
+            data-repo-id="[ENTER REPO ID HERE]"
+            data-category="[ENTER CATEGORY NAME HERE]"
+            data-category-id="[ENTER CATEGORY ID HERE]"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="light"
+            data-lang="en"
+            crossorigin="anonymous"
+            async>
+    </script>
+    
+    Instructions to set up Giscus:
+    1. Enable Discussions in your repository settings
+    2. Visit https://giscus.app/
+    3. Enter your repository name
+    4. Configure your preferences
+    5. Copy the generated script tag and replace the one above
+  </div>
+  -->
+</article>

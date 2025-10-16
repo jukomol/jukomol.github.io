@@ -1,0 +1,77 @@
+# Site settings
+title: Jahir Uddin
+email: jahiruddinkomol@gmail.com
+description: >-
+   A researcher who loves building things that blend AI, safety, and real-world impact.
+baseurl: "" # subpath of your site, e.g. /blog
+url: "https://jukomol.github.io" # the base hostname & protocol
+
+# Build settings
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title/
+
+# Collections
+collections:
+  pubs:
+    output: true
+    permalink: /publications/:slug/
+  talks:
+    output: true
+    permalink: /presentations/:slug/
+  resources:
+    output: true
+    permalink: /resources/:slug/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+      type: "pubs"
+    values:
+      layout: "pub"
+  - scope:
+      path: ""
+      type: "talks"
+    values:
+      layout: "talk"
+  - scope:
+      path: ""
+      type: "resources"
+    values:
+      layout: "resource"
+
+# Exclude from processing
+exclude:
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - Gemfile
+  - Gemfile.lock
+  - package.json
+  - package-lock.json
+  - tailwind.config.js
+  - scripts/
+  - .github/
+  - README.md
+
+# Include dotfiles
+include:
+  - .nojekyll
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Social links (default)
+twitter_username: ju_komol
+github_username: jukomol
+linkedin_username: jukomol

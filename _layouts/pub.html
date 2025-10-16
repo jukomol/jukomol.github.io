@@ -1,0 +1,93 @@
+---
+layout: default
+---
+
+<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <!-- Publication Header -->
+  <header class="mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ page.title }}</h1>
+    
+    <!-- Authors -->
+    {% if page.authors %}
+      <p class="text-lg text-gray-700 mb-3">
+        {{ page.authors | join: ', ' }}
+      </p>
+    {% endif %}
+    
+    <!-- Venue and Date -->
+    <div class="flex flex-wrap items-center gap-3 text-gray-600 mb-4">
+      {% if page.venue %}
+        <span class="font-medium">{{ page.venue }}</span>
+      {% endif %}
+      
+      {% if page.date %}
+        {% if page.venue %}<span>&middot;</span>{% endif %}
+        <time datetime="{{ page.date | date_to_xmlschema }}">
+          {{ page.date | date: "%Y" }}
+        </time>
+      {% endif %}
+    </div>
+    
+    <!-- Action Links -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      {% if page.pdf %}
+        <a href="{{ page.pdf }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <svg class="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download PDF
+        </a>
+      {% endif %}
+      
+      {% if page.doi %}
+        <a href="https://doi.org/{{ page.doi }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          DOI
+        </a>
+      {% endif %}
+      
+      {% if page.code %}
+        <a href="{{ page.code }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          Code
+        </a>
+      {% endif %}
+      
+      {% if page.arxiv %}
+        <a href="https://arxiv.org/abs/{{ page.arxiv }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          arXiv
+        </a>
+      {% endif %}
+    </div>
+    
+    <!-- Tags -->
+    {% if page.tags %}
+      <div class="flex flex-wrap gap-2">
+        {% for tag in page.tags %}
+          <span class="tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </header>
+  
+  <!-- Abstract -->
+  {% if page.abstract %}
+    <section class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-3">Abstract</h2>
+      <div class="prose max-w-none">
+        {{ page.abstract | markdownify }}
+      </div>
+    </section>
+  {% endif %}
+  
+  <!-- Main Content -->
+  <div class="prose prose-lg max-w-none mb-8">
+    {{ content }}
+  </div>
+  
+  <!-- Citation -->
+  {% if page.citation %}
+    <section class="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-3">Citation</h2>
+      <pre class="bg-white p-4 rounded border border-gray-300 text-sm overflow-x-auto"><code>{{ page.citation }}</code></pre>
+    </section>
+  {% endif %}
+</article>
