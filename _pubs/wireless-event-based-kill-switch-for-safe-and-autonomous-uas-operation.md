@@ -3,6 +3,7 @@
 ---
 
 ---
+
 title: "Wireless event-based kill-switch for safe and autonomous UAS operation"
 authors:
   - "Jahir Uddin"
@@ -20,4 +21,5 @@ tags:
   - "UAV"
   - "Authorization"
   - "Decision Making"
+  
 ---
