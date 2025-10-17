@@ -1,14 +1,13 @@
 ---
-
----
-
----
 title: "Poloclub"
-resource_type: "Machine Learning"
+resource_type: "Website"
 date: 2025-10-16
 link: "https://poloclub.github.io/"
-description: "At Georgia Tech, we innovate scalable, interactive, and interpretable tools that amplify humans' ability to understand and interact with billion-scale data and machine learning models. Our current research thrusts: human-centered AI (interpretable and safe AI; AI education; adversarial ML; large network visualization and graph mining."
+description: "GTech's machine learning group's materials.
 tags:
   - "Machine Learning"
   - "Data Science"
 ---
+
+## Description
+Safe, interpretable, trustworthy AI, through interactive intelligent visualization, with applications in adversarial machine learning (protecting AI from harm and doing harm), scalable discoveries of deep learning models, and advancing AI education for students and educators.
