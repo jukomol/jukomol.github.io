@@ -1,0 +1,67 @@
+---
+layout: default
+---
+
+<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <!-- Resource Header -->
+  <header class="mb-8">
+    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ page.title }}</h1>
+    
+    <!-- Resource Type -->
+    {% if page.resource_type %}
+      <p class="text-lg text-gray-700 mb-3">
+        <span class="font-medium">Type:</span> {{ page.resource_type }}
+      </p>
+    {% endif %}
+    
+    <!-- Date -->
+    {% if page.date %}
+      <p class="text-gray-600 mb-6">
+        <time datetime="{{ page.date | date_to_xmlschema }}">
+          {{ page.date | date: "%B %d, %Y" }}
+        </time>
+      </p>
+    {% endif %}
+    
+    <!-- Action Links -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      {% if page.link %}
+        <a href="{{ page.link }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          <svg class="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          Access Resource
+        </a>
+      {% endif %}
+      
+      {% if page.download %}
+        <a href="{{ page.download }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          <svg class="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download
+        </a>
+      {% endif %}
+      
+      {% if page.code %}
+        <a href="{{ page.code }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          Code
+        </a>
+      {% endif %}
+    </div>
+    
+    <!-- Tags -->
+    {% if page.tags %}
+      <div class="flex flex-wrap gap-2">
+        {% for tag in page.tags %}
+          <span class="tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </header>
+  
+  <!-- Main Content -->
+  <div class="prose prose-lg max-w-none">
+    {{ content }}
+  </div>
+</article>

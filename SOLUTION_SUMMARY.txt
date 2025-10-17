@@ -1,0 +1,55 @@
+================================================================================
+GITHUB PAGES SITE LOADING ISSUE - SOLUTION SUMMARY
+================================================================================
+
+PROBLEM:
+--------
+Your site is not loading, and you're seeing this error:
+"The github-pages gem can't satisfy your Gemfile's dependencies"
+
+ROOT CAUSE:
+-----------
+Your GitHub repository's Pages settings are configured to use "Deploy from a 
+branch" (the classic method), which only supports Jekyll 3.9.x. However, your
+site uses Jekyll 4.x, which requires GitHub Actions for deployment.
+
+SOLUTION:
+---------
+Change your repository's Pages deployment source from "Deploy from a branch" 
+to "GitHub Actions".
+
+STEP-BY-STEP INSTRUCTIONS:
+---------------------------
+1. Go to: https://github.com/jukomol/site
+2. Click "Settings" tab
+3. Click "Pages" in the left sidebar
+4. Under "Build and deployment" → "Source"
+5. Change from "Deploy from a branch" to "GitHub Actions"
+6. That's it! The next push will automatically deploy your site.
+
+WHAT THIS PR DOES:
+------------------
+✓ Added .nojekyll file to signal GitHub not to use classic Jekyll processing
+✓ Updated Gemfile with comments explaining Jekyll 4.x requirement
+✓ Enhanced README with troubleshooting section for this error
+✓ Created GITHUB_PAGES_SETUP.md with detailed instructions
+✓ Verified site builds correctly with Jekyll 4.x and Tailwind CSS
+
+VERIFICATION:
+-------------
+After changing the Pages source:
+1. Go to the "Actions" tab in your repository
+2. The "Build and Deploy" workflow should run automatically
+3. Once completed, your site will be live at: https://jukomol.github.io
+
+NO CODE CHANGES REQUIRED:
+--------------------------
+The workflow (.github/workflows/build.yml) is already correctly configured.
+You only need to change the repository Pages settings as described above.
+
+ADDITIONAL DOCUMENTATION:
+--------------------------
+- See GITHUB_PAGES_SETUP.md for detailed instructions
+- See README.md "Deployment" section for troubleshooting
+
+================================================================================
