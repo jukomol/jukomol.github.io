@@ -5,10 +5,10 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
   repository_dispatch:
     types: [trigger-build] 

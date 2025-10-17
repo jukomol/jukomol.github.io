@@ -487,7 +487,7 @@ Automatically runs when:
 
 ### Build and Deploy Workflow (`.github/workflows/build.yml`)
 
-Runs on every push to `master` and:
+Runs on every push to `main` and:
 1. Builds Tailwind CSS
 2. Builds Jekyll site
 3. Deploys to GitHub Pages
@@ -573,7 +573,7 @@ To enable:
 
 1. Go to your repository **Settings → Pages**
 2. Under "Build and deployment", set **Source** to **"GitHub Actions"** (not "Deploy from a branch")
-3. Push to the `master` branch
+3. Push to the `main` branch
 4. The site will be built and deployed automatically via the workflow in `.github/workflows/build.yml`
 
 #### Troubleshooting
