@@ -14,7 +14,7 @@ authors:
   - "Guggilla, Pavan"
 venue: "Environmental Data Initiative"
 date: 2025-09-24
-abstract: "Water segmentation models were created by tuning the open-source Segment Anything Model 2 (SAM2, https://github.com/facebookresearch/sam2) using images that were annotated by team members on this project. The models were trained on the "water" annotations, but annotation files may include additional labels, such as "snow", "sky", and "unknown". Image annotation was done in Computer Vision Annotation Tool (CVAT) and exported in COCO format (.json).
+abstract: "Water segmentation models were created by tuning the open-source Segment Anything Model 2 (SAM2, https://github.com/facebookresearch/sam2) using images that were annotated by team members on this project. The models were trained on the water annotations, but annotation files may include additional labels, such as snow, sky, and unknown. Image annotation was done in Computer Vision Annotation Tool (CVAT) and exported in COCO format (.json).
 
 All model training and testing was completed in GaugeCam Remote Image Manager Educational Artificial Intelligence (GRIME AI, https://gaugecam.org/) software (Version: Beta 16). Model performance plots were automatically generated during this process.
 
