@@ -45,6 +45,6 @@ tags:
 
 
 ### Citation
-Gilmore, T.E., J.E. Stranzl, Jr., M.J. Harner, K. Johnson, C. Terry, M. Wells, M. Smith, D. Kosmicki, J. Bajelan, J. Uddin, and P. Guggilla. 2025. GRIME AI Water Segmentation Model for the USGS Monitoring Site at Pecos River near Acme, NM, 2022-2024 ver 1. Environmental Data Initiative. https://doi.org/10.6073/pasta/9851734435fc3dc104ee136dfeb29a05 (Accessed 2025-10-17).
+Gilmore, T.E., J.E. Stranzl, Jr., M.J. Harner, K. Johnson, C. Terry, M. Wells, M. Smith, D. Kosmicki, J. Bajelan, J. Uddin, and P. Guggilla. 2025. GRIME AI Water Segmentation Model for the USGS Monitoring Site at Pecos River near Acme, NM, 2022-2024 ver 1. Environmental Data Initiative.
 
 **To cite other sites, please go to the DOI of the specific site.**
