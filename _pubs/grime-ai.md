@@ -14,12 +14,9 @@ authors:
   - "Guggilla, Pavan"
 venue: "Environmental Data Initiative"
 date: 2025-09-24
-abstract: "Water segmentation models were created by tuning the open-source Segment Anything Model 2 (SAM2, https://github.com/facebookresearch/sam2) using images that were annotated by team members on this project. The models were trained on the water annotations, but annotation files may include additional labels, such as snow, sky, and"unknown. Image annotation was done in Computer Vision Annotation Tool (CVAT) and exported in COCO format (.json).
-
+abstract: "Water segmentation models were created by tuning the open-source Segment Anything Model 2 (SAM2, https://github.com/facebookresearch/sam2) using images that were annotated by team members on this project. The models were trained on the water annotations, but annotation files may include additional labels, such as snow, sky, and unknown. Image annotation was done in Computer Vision Annotation Tool (CVAT) and exported in COCO format (.json).
 All model training and testing was completed in GaugeCam Remote Image Manager Educational Artificial Intelligence (GRIME AI, https://gaugecam.org/) software (Version: Beta 16). Model performance plots were automatically generated during this process.
-
 This project was conducted in 2023-2025 by collaborators at the University of Nebraska-Lincoln, University of Nebraska at Kearney, and the U.S. Geological Survey.
-
 This material is based upon work supported by the U.S. Geological Survey under Grant/Cooperative Agreement No. G23AC00141-00. The views and conclusions contained in this document are those of the authors and should not be interpreted as representing the opinions or policies of the U.S. Geological Survey. Mention of trade names or commercial products does not constitute their endorsement by the U.S. Geological Survey. We gratefully acknowledge graduate student support from Daugherty Water for Food Global Institute at the University of Nebraska."
 pdf: "#"
 doi: "10.6073/pasta/9851734435fc3dc104ee136dfeb29a05"
