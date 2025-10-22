@@ -87,6 +87,14 @@ tags:
 Your markdown content goes here.
 ```
 
+**Important:** Content should be written in **pure markdown format** (not HTML) to take advantage of automatic typography styling. The site uses the Tailwind Typography plugin which provides beautiful styling for:
+- Images: `![Alt text](image-url)`
+- Tables: Use markdown table syntax with `|` delimiters
+- Code blocks: Use triple backticks with language specification
+- Lists, headings, links, and other markdown elements
+
+If you paste content that includes HTML tags (like `<html>`, `<body>`, `<p>`, etc.), it will be rendered as raw HTML and won't receive automatic typography styling.
+
 ### Front Matter Fields
 
 #### Publications (`pub`)
@@ -176,6 +184,18 @@ This post provides a comprehensive guide for beginners starting their journey in
 - [Coursera ML Course](https://coursera.org/ml)
 - [Fast.ai](https://fast.ai)
 - [Scikit-learn Documentation](https://scikit-learn.org)
+
+## Comparison of Learning Approaches
+
+| Approach | Best For | Time Commitment |
+|----------|----------|-----------------|
+| Online Courses | Structured learning | 3-6 months |
+| Books | Deep understanding | 6-12 months |
+| Projects | Hands-on experience | Ongoing |
+
+## Example Visualization
+
+![ML Workflow](https://via.placeholder.com/600x300?text=ML+Workflow+Diagram)
 
 ## Conclusion
 
