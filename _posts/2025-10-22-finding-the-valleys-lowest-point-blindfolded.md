@@ -12,8 +12,8 @@ tags:
 # The Problem
 
 So, picture this.  
-I’m standing on top of a hill. The wind’s nice, the view’s probably great, except I’m **blindfolded**.  
-Somewhere in front of me, there’s a valley, and my job is to find its **lowest point**.
+You are standing on top of a hill. The wind’s nice, the view’s probably great, except I’m **blindfolded**.  
+Somewhere in front of you, there’s a valley, and your job is to find its **lowest point**.
 
 No GPS. No map. Just my sense of “up” and “down.”
 
@@ -70,7 +70,7 @@ It’s accurate but slow. You’ll get the answer eventually, even if you age do
 
 ---
 
-## ASCII Sketch: My Way (Full Scan)
+## My Way (Full Scan)
 
 ```
 z ↑
@@ -90,7 +90,7 @@ The bad thing? You’ll also *walk over everything else.*
 
 ---
 
-## ⚙️ The Smarter Way, Gradient Descent
+## The Smarter Way, Gradient Descent
 
 Now let’s think like a mathematician.
 
@@ -117,7 +117,7 @@ where:
 
 ---
 
-### ASCII Diagram: Gradient Descent
+### Gradient Descent
 
 ```
 z ↑
@@ -204,7 +204,7 @@ This mimics the cooling of metal to reach a stable crystal, or in our case, a **
 
 ---
 
-### ASCII View: Annealing Movement
+### Annealing Movement
 
 ```
 z ↑
