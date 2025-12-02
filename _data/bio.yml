@@ -4,14 +4,9 @@ affiliation: "University of Nebraska Medical Center"
 email: "juddin@unmc.edu"
 bio_short: "Physical AI researcher specializing in Human Factor Engineering and Occupational Safety."
 bio_full: |
-  Hi, I’m Jahir Uddin, a researcher, builder, and lifelong learner. 
-  I’m pursuing my PhD in Environmental and Occupational Health at the 
-  University of Nebraska Medical Center, where I study how technology 
-  and AI can make agricultural work safer and smarter. Beyond research, 
-  I love designing things that solve real problems, from computer vision 
-  systems to small creative projects. My goal is simple: use science and 
-  engineering to make people’s lives better, one idea at a time.
-  When I’m not working, you’ll find me exploring nature, reading sci-fi,
+  Jahir Uddin is a Graduate Research Assistant at the University of Nebraska Medical Center.
+  His research focuses on Physical AI, Human Factor Engineering, Occupational Safety, 
+  Ag-Robotics, and Digital Twin technologies and their applications in healthcare and agriculture.
 research_interests:
   - "Physical AI"
   - "Human Factor Engineering"
@@ -20,3 +15,10 @@ research_interests:
   - "Digital Twin"
 profile_image: "/assets/images/profile.jpg"
 download_cv: "/assets/cv/Jahir_Uddin_CV.pdf"
+links:
+  github: "jukomol"
+  scholar: ""
+  orcid: ""
+
+# Additional content from issue
+# Additional bio content can go here.
