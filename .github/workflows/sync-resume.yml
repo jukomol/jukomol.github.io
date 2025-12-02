@@ -2,8 +2,6 @@ name: Sync resume from Overleaf
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 14 * * 1"
 
 permissions:
   contents: write
