@@ -1,7 +1,7 @@
 ---
 title: "Getting Started with NLP Research"
 date: 2024-01-05
-author: "Jane Smith"
+author: "Jahir Uddin"
 tags:
   - "NLP"
   - "Research"
