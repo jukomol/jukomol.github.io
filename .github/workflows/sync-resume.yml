@@ -81,7 +81,7 @@ jobs:
             } catch {
               // Fallback: any anchor whose href contains /download
               const byHref = page.locator('a[href*="/download"]').first();
-              await byHref.waitFor({ timeout: 15000 });
+              await byHref.waitFor({ state: 'attached', timeout: 15000 });
               link = byHref;
             }
 
@@ -89,7 +89,7 @@ jobs:
             let downloaded = false;
             try {
               const downloadPromise = page.waitForEvent('download', { timeout: 20000 });
-              await link.click();
+              await link.click({ force: true });
               const download = await downloadPromise;
               await download.saveAs(OUT_PDF);
               downloaded = true;
