@@ -2,8 +2,8 @@ name: Sync resume from Overleaf
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "0 14 * * 1"
+  schedule:
+    - cron: "0 14 * * 1"
 
 permissions:
   contents: write
@@ -83,7 +83,7 @@ jobs:
             } catch {
               // Fallback: any anchor whose href contains /download
               const byHref = page.locator('a[href*="/download"]').first();
-              await byHref.waitFor({ timeout: 15000 });
+              await byHref.waitFor({ state: 'attached', timeout: 15000 });
               link = byHref;
             }
 
@@ -91,7 +91,7 @@ jobs:
             let downloaded = false;
             try {
               const downloadPromise = page.waitForEvent('download', { timeout: 20000 });
-              await link.click();
+              await link.click({ force: true });
               const download = await downloadPromise;
               await download.saveAs(OUT_PDF);
               downloaded = true;
@@ -134,22 +134,34 @@ jobs:
           node download-overleaf.mjs
           file tmp/resume.pdf | grep -qi 'PDF' || (echo "Downloaded file is not a PDF"; exit 1)
 
-      - name: Compare and commit if changed
+      - name: Compare, replace, and commit if changed
         run: |
           DEST="assets/cv/Jahir_Uddin_CV.pdf"
           mkdir -p "$(dirname "$DEST")"
+
           oldsum="missing"
           [ -f "$DEST" ] && oldsum=$(sha256sum "$DEST" | cut -d' ' -f1)
           newsum=$(sha256sum tmp/resume.pdf | cut -d' ' -f1)
+
+          echo "Old SHA256: $oldsum"
+          echo "New SHA256: $newsum"
+
           if [ "$oldsum" != "$newsum" ]; then
+            echo "Resume changed – replacing old PDF."
             cp tmp/resume.pdf "$DEST"
+
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
+
             git add "$DEST"
-            git commit -m "Update Jahir_Uddin_resume.pdf from Overleaf"
-            git push
+            git commit -m "Update Jahir_Uddin_CV.pdf from Overleaf" || {
+              echo "Nothing to commit after all"; exit 0;
+            }
+
+            # Push back to the same branch this workflow ran on
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
           else
-            echo "No change."
+            echo "No change in resume – nothing to commit."
           fi
 
       - name: Upload debug artifacts on failure
@@ -160,9 +172,9 @@ jobs:
           path: |
             tmp/view.html
             tmp/view.png
-            
+
       - name: Trigger Build & Deploy
-        if: success()
+        if: success() && github.ref == 'refs/heads/master'
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -3,8 +3,7 @@ name: Sync Issues (stable)
 on:
   issues:
     types: [opened, edited, labeled, unlabeled]
-  schedule:
-    - cron: '0 2 * * *'   # 2 AM UTC daily
+    
   workflow_dispatch:
 
 permissions:
