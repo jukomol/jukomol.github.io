@@ -1,10 +1,7 @@
 name: "Jahir Uddin"
 title: "Graduate Research Assistant"
-affiliation: "College of Public Health"
-department: "University of Nebraska Medical Center"
+affiliation: "University of Nebraska Medical Center"
 email: "juddin@unmc.edu"
-phone: "347-691-5709"
-location: "42nd and Emile, Omaha, Nebraska 68198"
 bio_short: "Physical AI researcher specializing in Human Factor Engineering and Occupational Safety."
 bio_full: |
   Hi, I’m Jahir Uddin, a researcher, builder, and lifelong learner. 
@@ -23,7 +20,3 @@ research_interests:
   - "Digital Twin"
 profile_image: "/assets/images/profile.jpg"
 download_cv: "/assets/cv/Jahir_Uddin_CV.pdf"
-links:
-  github: "jukomol"
-  scholar: "https://scholar.google.com/citations?user=oTpXgIcAAAAJ&hl=en"
-  linkedin: "jukomol"
