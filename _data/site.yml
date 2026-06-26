@@ -20,6 +20,10 @@ navigation:
     url: "/pages/presentations/"
   - title: "Blog"
     url: "/blog/"
+  - title: "CV"
+    url: "/pages/cv/"
+  - title: "Contact"
+    url: "/pages/contact/"
 
 # Social links
 social:
