@@ -8,10 +8,11 @@
  * - bio → _data/bio.yml
  * - cv → updates _data/bio.yml with CV download link
  * - post → _posts/YYYY-MM-DD-slug.md
- * - pub → _pubs/slug.md
- * - presentation → _talks/slug.md
+ * - pub → _pubs/slug.md (also appends a "Paper" entry to _data/news.yml)
+ * - presentation → _talks/slug.md (also appends a "Talk" entry to _data/news.yml)
  * - resource → _resources/slug.md
  * - contact → _data/contact.yml
+ * - news → appends an entry (Grant/Student/Service/Media/Other/...) to _data/news.yml
  */
 
 import { graphql } from '@octokit/graphql';
@@ -187,6 +188,21 @@ Feel free to reach out via email!`,
           labels: {
             nodes: [{ name: "contact" }]
           }
+        },
+        {
+          title: "Received the NSF CAREER Award",
+          body: `---
+date: 2024-02-10
+category: "Grant"
+text: "Received the NSF CAREER Award. Thanks for the generous support!"
+---
+
+Additional details about the award.`,
+          createdAt: "2024-02-10T10:00:00Z",
+          updatedAt: "2024-02-10T10:00:00Z",
+          labels: {
+            nodes: [{ name: "news" }]
+          }
         }
       ]
     }
@@ -232,6 +248,43 @@ function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
+}
+
+/**
+ * Escape a string for use inside a double-quoted YAML scalar
+ */
+function yamlQuote(str) {
+  return String(str)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, ' ')
+    .trim();
+}
+
+/**
+ * Extract a field value from a YAML front matter block (simple "key: value" lines)
+ */
+function extractField(frontMatter, field) {
+  const match = frontMatter.match(new RegExp(`^${field}:\\s*["']?([^"'\\n]+)["']?\\s*$`, 'm'));
+  return match ? match[1].trim() : null;
+}
+
+/**
+ * Append an entry to the homepage News timeline (_data/news.yml)
+ */
+function appendNews({ date, category, text }) {
+  const newsPath = path.join(rootDir, '_data', 'news.yml');
+  ensureDir(path.dirname(newsPath));
+
+  const entry = `\n- date: "${date}"\n  category: "${yamlQuote(category)}"\n  text: "${yamlQuote(text)}"\n`;
+
+  if (!fs.existsSync(newsPath)) {
+    fs.writeFileSync(newsPath, entry.trimStart() + '\n');
+  } else {
+    fs.appendFileSync(newsPath, entry);
+  }
+
+  console.log(`✓ Added news item: [${category}] ${text}`);
 }
 
 /**
@@ -321,9 +374,18 @@ function processPub(discussion) {
   
   const pubPath = path.join(pubsDir, filename);
   const pubContent = `---\n${frontMatter}\n---\n\n${content}`;
-  
+
   fs.writeFileSync(pubPath, pubContent);
   console.log(`✓ Created publication: ${pubPath}`);
+
+  const title = extractField(frontMatter, 'title') || discussion.title;
+  const venue = extractField(frontMatter, 'venue');
+  const date = extractField(frontMatter, 'date') || discussion.createdAt.split('T')[0];
+  const text = venue
+    ? `Our paper (**${title}**) has been accepted by **${venue}**!`
+    : `Our paper (**${title}**) has been accepted!`;
+
+  appendNews({ date, category: 'Paper', text });
 }
 
 /**
@@ -340,9 +402,32 @@ function processPresentation(discussion) {
   
   const talkPath = path.join(talksDir, filename);
   const talkContent = `---\n${frontMatter}\n---\n\n${content}`;
-  
+
   fs.writeFileSync(talkPath, talkContent);
   console.log(`✓ Created presentation: ${talkPath}`);
+
+  const title = extractField(frontMatter, 'title') || discussion.title;
+  const event = extractField(frontMatter, 'event');
+  const date = extractField(frontMatter, 'date') || discussion.createdAt.split('T')[0];
+  const text = event
+    ? `Gave a talk, **"${title}"**, at **${event}**.`
+    : `Gave a talk: **${title}**.`;
+
+  appendNews({ date, category: 'Talk', text });
+}
+
+/**
+ * Process news issue (Grant / Student / Service / Media / Other / ...)
+ */
+function processNews(issue) {
+  console.log(`Processing news item: ${issue.title}`);
+  const { frontMatter } = parseFrontMatter(issue.body);
+
+  const date = extractField(frontMatter, 'date') || issue.createdAt.split('T')[0];
+  const category = extractField(frontMatter, 'category') || 'Other';
+  const text = extractField(frontMatter, 'text') || issue.title;
+
+  appendNews({ date, category, text });
 }
 
 /**
@@ -457,6 +542,8 @@ async function sync() {
       processResource(issue);
     } else if (labels.includes('contact')) {
       processContact(issue);
+    } else if (labels.includes('news')) {
+      processNews(issue);
     } else {
       console.log(`⊘ Skipping issue without recognized type label: ${issue.title}`);
     }
