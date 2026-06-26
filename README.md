@@ -65,7 +65,6 @@ Use these labels on your GitHub Issues to categorize content:
 - `presentation` - Talks and presentations (creates files in `_talks/`)
 - `resource` - Resources like datasets, code, etc. (creates files in `_resources/`)
 - `contact` - Contact information (updates `_data/contact.yml`)
-- `news` - Homepage News timeline item: Grant, Student, Service, Media, Other, etc. (appends to `_data/news.yml`). Note: `pub` and `presentation` issues also automatically append a "Paper"/"Talk" entry to the News timeline.
 
 ### Issue Format
 
@@ -146,13 +145,6 @@ date: 2024-01-15
 author: "Author Name"
 tags:
   - "Tag 1"
-```
-
-#### News (`news`)
-```yaml
-date: 2024-01-15
-category: "Grant" # Grant, Paper, Talk, Student, Service, Media, Other
-text: "Received the NSF CAREER Award. Thanks for the generous support!"
 ```
 
 ### Complete Issue Examples
@@ -433,7 +425,7 @@ Feel free to reach out via email or stop by during office hours!
 2. Click **New Issue**
 3. Enter the issue title
 4. Paste the example content (modified with your information) into the issue body
-5. Add the appropriate label (`post`, `pub`, `presentation`, `resource`, `bio`, `cv`, `contact`, or `news`)
+5. Add the appropriate label (`post`, `pub`, `presentation`, `resource`, `bio`, `cv`, or `contact`)
 6. Click **Submit new issue**
 
 The GitHub Actions workflow will automatically:
@@ -647,7 +639,6 @@ bundle exec jekyll build
 ├── _data/                   # Data files
 │   ├── bio.yml             # Bio and CV info
 │   ├── contact.yml         # Contact information
-│   ├── news.yml            # Homepage News timeline entries
 │   └── site.yml            # Site configuration
 ├── _includes/              # Reusable components
 │   ├── card.html
