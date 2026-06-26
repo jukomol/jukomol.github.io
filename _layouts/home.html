@@ -103,6 +103,25 @@ layout: default
     </section>
   {% endif %}
   
+  <!-- Recent Presentations and Talks -->
+  {% assign recent_talks = site.talks | sort: 'date' | reverse | limit: 3 %}
+  {% if recent_talks.size > 0 %}
+    <section class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">Recent Presentations and Talks</h2>
+        <a href="{{ '/pages/presentations/' | relative_url }}" class="text-primary-700 hover:text-primary-900 font-medium">
+          View All &rarr;
+        </a>
+      </div>
+      
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {% for talk in recent_talks %}
+          {% include card.html item=talk type="talk" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+  
   <!-- Recent Blog Posts -->
   {% assign recent_posts = site.posts | limit: 3 %}
   {% if recent_posts.size > 0 %}
