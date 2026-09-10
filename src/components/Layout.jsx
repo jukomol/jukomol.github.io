@@ -26,7 +26,6 @@ export default function Layout() {
               <Link to="/cv" className="hover:text-cyan-400 transition font-medium">CV</Link>
               <Link to="/publications" className="hover:text-cyan-400 transition font-medium">Publications</Link>
               <Link to="/blog" className="hover:text-cyan-400 transition font-medium">Blog</Link>
-              <Link to="/admin" className="bg-cyan-600 px-4 py-2 rounded-lg hover:bg-cyan-700 transition font-medium">Login</Link>
             </div>
           </div>
 
@@ -36,7 +35,6 @@ export default function Layout() {
               <Link to="/cv" className="hover:text-cyan-400 transition font-medium" onClick={() => setMenuOpen(false)}>CV</Link>
               <Link to="/publications" className="hover:text-cyan-400 transition font-medium" onClick={() => setMenuOpen(false)}>Publications</Link>
               <Link to="/blog" className="hover:text-cyan-400 transition font-medium" onClick={() => setMenuOpen(false)}>Blog</Link>
-              <Link to="/admin" className="bg-cyan-600 px-4 py-2 rounded-lg hover:bg-cyan-700 transition w-fit font-medium" onClick={() => setMenuOpen(false)}>Login</Link>
             </div>
           )}
         </div>
