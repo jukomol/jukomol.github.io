@@ -360,12 +360,14 @@ export default function CVTab() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Description (Markdown supported)</label>
                   <textarea
                     {...register("description")}
                     rows={3}
+                    placeholder="Describe your role/project. Use **bold**, *italic*, or - for bullets"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   />
+                  <p className="text-xs text-gray-600 mt-1">Tip: Use **text** for bold, *text* for italic, - for bullet points, # for headings</p>
                 </div>
 
                 {editingEntry && (

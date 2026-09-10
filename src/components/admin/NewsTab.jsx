@@ -111,12 +111,14 @@ export default function NewsTab() {
       {showForm && (
         <form onSubmit={handleSubmit(onSubmit)} className="mb-8 p-6 bg-gray-50 rounded-lg space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Content (Markdown supported)</label>
             <textarea
               {...register('content', { required: 'Content is required' })}
               rows={3}
+              placeholder="Write your news here. Use **bold**, *italic*, or [links](url)"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-gray-500 mt-1">Tip: Use **text** for bold, *text* for italic, [link](url) for links, # for headings</p>
             {errors.content && <p className="text-red-600 text-sm">{errors.content.message}</p>}
           </div>
 

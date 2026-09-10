@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { format } from 'date-fns'
 import { Download, Upload } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import ReactMarkdown from 'react-markdown'
 
 export default function CV() {
   const [timeline, setTimeline] = useState([])
@@ -88,7 +89,9 @@ export default function CV() {
                       </span>
                     </div>
                     {item.description && (
-                      <p className="text-gray-700 leading-relaxed">{item.description}</p>
+                      <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                        <ReactMarkdown>{item.description}</ReactMarkdown>
+                      </div>
                     )}
                   </div>
                 </div>

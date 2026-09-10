@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase, FALLBACK_PROFILE } from '../lib/supabase'
 import { format } from 'date-fns'
 import { ExternalLink, Mail, MapPin } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 export default function Home() {
   const [profile, setProfile] = useState(FALLBACK_PROFILE)
@@ -136,7 +137,9 @@ export default function Home() {
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-700 mb-2">{item.content}</p>
+                  <div className="text-gray-700 mb-2 prose prose-sm max-w-none">
+                    <ReactMarkdown>{item.content}</ReactMarkdown>
+                  </div>
                   {item.link && (
                     <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-cyan-600 hover:text-cyan-800 flex items-center gap-2 font-medium">
                       Learn more <ExternalLink size={16} />
@@ -168,8 +171,12 @@ export default function Home() {
                       {format(new Date(pub.date), 'yyyy')}
                     </span>
                   </div>
-                  <p className="text-gray-700 mb-2 font-medium">{pub.authors}</p>
-                  <p className="text-gray-600 italic mb-3">{pub.venue}</p>
+                  <div className="text-gray-700 mb-2 font-medium prose prose-sm max-w-none">
+                    <ReactMarkdown>{pub.authors}</ReactMarkdown>
+                  </div>
+                  <div className="text-gray-600 italic mb-3 prose prose-sm max-w-none">
+                    <ReactMarkdown>{pub.venue}</ReactMarkdown>
+                  </div>
                   {pub.link && (
                     <a href={pub.link} target="_blank" rel="noopener noreferrer" className="text-cyan-600 hover:text-cyan-800 flex items-center gap-2 font-medium">
                       Read paper <ExternalLink size={16} />

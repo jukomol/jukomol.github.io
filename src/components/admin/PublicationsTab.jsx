@@ -122,20 +122,24 @@ export default function PublicationsTab() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Authors</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Authors (Markdown supported)</label>
             <input
               {...register('authors', { required: 'Authors are required' })}
+              placeholder="e.g., John Doe, **Jane Smith**, [Author](link)"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-gray-500 mt-1">Tip: Use **text** for bold, *text* for italic, [link](url) for links</p>
             {errors.authors && <p className="text-red-600 text-sm">{errors.authors.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Venue</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Venue (Markdown supported)</label>
             <input
               {...register('venue', { required: 'Venue is required' })}
+              placeholder="e.g., *Journal of Examples*, 2024"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-gray-500 mt-1">Tip: Use formatting for journal names and styling</p>
             {errors.venue && <p className="text-red-600 text-sm">{errors.venue.message}</p>}
           </div>
 

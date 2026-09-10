@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { format } from 'date-fns'
 import { ExternalLink } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 export default function Publications() {
   const [publications, setPublications] = useState([])
@@ -45,13 +46,19 @@ export default function Publications() {
                   </span>
                 </div>
 
-                <p className="text-gray-700 mb-2">
-                  <span className="font-semibold">Authors:</span> {pub.authors}
-                </p>
+                <div className="text-gray-700 mb-2">
+                  <span className="font-semibold">Authors:</span>
+                  <div className="mt-1 ml-0">
+                    <ReactMarkdown>{pub.authors}</ReactMarkdown>
+                  </div>
+                </div>
 
-                <p className="text-gray-600 italic mb-4">
-                  <span className="font-semibold">Venue:</span> {pub.venue}
-                </p>
+                <div className="text-gray-600 italic mb-4">
+                  <span className="font-semibold">Venue:</span>
+                  <div className="mt-1 ml-0 not-italic">
+                    <ReactMarkdown>{pub.venue}</ReactMarkdown>
+                  </div>
+                </div>
 
                 {pub.link && (
                   <a
