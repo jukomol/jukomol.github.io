@@ -4,28 +4,16 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 let supabase = null;
 
-// Load Supabase JS library
-function loadSupabaseLibrary() {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    script.onload = () => {
-      if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        resolve(supabase);
-      } else {
-        reject(new Error('Supabase library failed to load'));
-      }
-    };
-    script.onerror = () => reject(new Error('Failed to load Supabase library'));
-    document.head.appendChild(script);
-  });
-}
-
-// Initialize on demand
+// Get or initialize Supabase client
 async function getSupabaseClient() {
   if (supabase) return supabase;
-  return loadSupabaseLibrary();
+
+  if (!window.supabase) {
+    throw new Error('Supabase library not loaded. Make sure @supabase/supabase-js is loaded before calling this function.');
+  }
+
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return supabase;
 }
 
 // Fetch functions for various data types
@@ -140,6 +128,10 @@ async function isPagePublic(pageKey) {
 async function getCurrentUser() {
   const client = await getSupabaseClient();
   const { data, error } = await client.auth.getUser();
+  if (error) {
+    console.error('Error getting user:', error);
+    return null;
+  }
   return data?.user || null;
 }
 

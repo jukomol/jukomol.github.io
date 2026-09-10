@@ -11,6 +11,7 @@ permalink: /pages/admin/
   <title>Admin Panel - {{ site.title }}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/markdown-it@13/dist/markdown-it.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.umd.js"></script>
   <style>
     [v-cloak] { display: none; }
     .fade-enter { opacity: 0; }
@@ -285,7 +286,95 @@ permalink: /pages/admin/
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <script src="{{ '/assets/js/supabase-client.js' | relative_url }}"></script>
+
+  <script>
+    // Supabase client initialization
+    const SUPABASE_URL = 'https://ctavbergopvzeqnxrbbo.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0YXZiZXJnb3B2emVxbnhyYmJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMTQzMzIsImV4cCI6MjEwNDU5MDMzMn0.19N6SSYdigteGL1DdAfZd-_g82AAxJolioH5O6uFHBU';
+
+    let supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function getCurrentUser() {
+      const { data } = await supabase.auth.getUser();
+      return data?.user || null;
+    }
+
+    async function isUserAdmin(userId) {
+      const { data } = await supabase
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', userId)
+        .single();
+      return !!data;
+    }
+
+    async function signInWithGithub() {
+      await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: { redirectTo: window.location.origin + '/pages/admin/' }
+      });
+    }
+
+    async function signOut() {
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    }
+
+    async function fetchProfile() {
+      const { data } = await supabase.from('profile').select('*').single();
+      return data;
+    }
+
+    async function fetchContact() {
+      const { data } = await supabase.from('contact').select('*').single();
+      return data;
+    }
+
+    async function fetchNews() {
+      const { data } = await supabase.from('news').select('*').order('date', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchPublications() {
+      const { data } = await supabase.from('publications').select('*').order('date', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchTalks() {
+      const { data } = await supabase.from('talks').select('*').order('date', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchResources() {
+      const { data } = await supabase.from('resources').select('*').order('date', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchProjects() {
+      const { data } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchServices() {
+      const { data } = await supabase.from('services').select('*').order('start_date', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchPosts() {
+      const { data } = await supabase.from('posts').select('*').order('date', { ascending: false });
+      return data || [];
+    }
+
+    async function fetchCVEntries() {
+      const { data } = await supabase.from('cv_entries').select('*').order('sort_order', { ascending: true });
+      return data || [];
+    }
+
+    async function fetchPageSettings() {
+      const { data } = await supabase.from('page_settings').select('*');
+      return data || [];
+    }
+  </script>
 
   <script>
     const { createApp } = Vue;
