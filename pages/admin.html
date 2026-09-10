@@ -1,0 +1,556 @@
+---
+layout: null
+permalink: /pages/admin/
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - {{ site.title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@13/dist/markdown-it.min.js"></script>
+  <style>
+    [v-cloak] { display: none; }
+    .fade-enter { opacity: 0; }
+    .fade-enter-active { transition: opacity 0.3s; }
+    .fade-enter-to { opacity: 1; }
+  </style>
+</head>
+<body class="bg-gray-100" v-cloak>
+  <div id="app" class="min-h-screen">
+    <!-- Loading state -->
+    <div v-if="loading" class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+        <p class="text-gray-600">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Auth state -->
+    <template v-else-if="!user">
+      <div class="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white">
+        <div class="text-center">
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ site.title }} Admin</h1>
+          <p class="text-gray-600 mb-8">Sign in with GitHub to manage your content</p>
+          <button @click="signInWithGithub" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition">
+            Sign in with GitHub
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Unauthorized state -->
+    <template v-else-if="!isAdmin">
+      <div class="flex items-center justify-center min-h-screen bg-gradient-to-b from-red-50 to-white">
+        <div class="text-center">
+          <h1 class="text-4xl font-bold text-red-900 mb-2">Access Denied</h1>
+          <p class="text-gray-600 mb-8">Your GitHub account is not authorized to edit this site.</p>
+          <button @click="signOut" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Admin panel -->
+    <template v-else>
+      <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg overflow-y-auto">
+          <div class="p-6 border-b">
+            <h1 class="text-2xl font-bold text-gray-900">Admin Panel</h1>
+            <p class="text-sm text-gray-600 mt-1">{{ user.email }}</p>
+          </div>
+
+          <nav class="p-4">
+            <div v-for="section in sections" :key="section.id">
+              <button
+                @click="currentSection = section.id"
+                :class="['w-full text-left px-4 py-2 rounded transition', currentSection === section.id ? 'bg-blue-100 text-blue-900 font-semibold' : 'text-gray-700 hover:bg-gray-100']"
+              >
+                {{ section.label }}
+              </button>
+            </div>
+          </nav>
+
+          <div class="p-4 border-t">
+            <button @click="signOut" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-8 max-w-6xl mx-auto">
+            <!-- Profile Section -->
+            <template v-if="currentSection === 'profile'">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6">Profile</h2>
+              <form @submit.prevent="saveProfile" class="bg-white rounded-lg shadow-lg p-6 space-y-4">
+                <input v-model="profile.name" placeholder="Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input v-model="profile.title" placeholder="Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input v-model="profile.affiliation" placeholder="Affiliation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input v-model="profile.email" placeholder="Email" type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <textarea v-model="profile.bio_short" placeholder="Short bio" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"></textarea>
+                <textarea v-model="profile.bio_full" placeholder="Full bio (markdown)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"></textarea>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">Research Interests (one per line)</label>
+                  <textarea v-model="profileInterestsText" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Image URL</label>
+                  <input v-model="profile.profile_image_url" placeholder="https://..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                  <input type="file" @change="uploadProfileImage" class="block mb-2">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">CV URL</label>
+                  <input v-model="profile.cv_url" placeholder="https://..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                  Save Profile
+                </button>
+              </form>
+            </template>
+
+            <!-- Contact Section -->
+            <template v-if="currentSection === 'contact'">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6">Contact</h2>
+              <form @submit.prevent="saveContact" class="bg-white rounded-lg shadow-lg p-6 space-y-4">
+                <input v-model="contact.email" placeholder="Email" type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input v-model="contact.office" placeholder="Office" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input v-model="contact.office_hours" placeholder="Office Hours" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="space-y-2">
+                  <label class="block text-sm font-semibold text-gray-700">Social Links</label>
+                  <input v-model="contact.social.twitter" placeholder="Twitter handle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <input v-model="contact.social.github" placeholder="GitHub username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <input v-model="contact.social.linkedin" placeholder="LinkedIn username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <input v-model="contact.social.scholar" placeholder="Google Scholar URL" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                  Save Contact
+                </button>
+              </form>
+            </template>
+
+            <!-- News Section -->
+            <template v-if="currentSection === 'news'">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6">News</h2>
+              <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-bold text-gray-900 mb-4">Add News Entry</h3>
+                  <form @submit.prevent="addNews" class="space-y-4">
+                    <input v-model="newNewsEntry.date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newNewsEntry.category" placeholder="Category (e.g., Paper, Grant, Award)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <textarea v-model="newNewsEntry.content" placeholder="Content (markdown supported)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"></textarea>
+                    <input v-model="newNewsEntry.link_url" placeholder="Link URL (optional)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                      Add News
+                    </button>
+                  </form>
+                </div>
+
+                <div class="space-y-4">
+                  <h3 class="text-xl font-bold text-gray-900">Existing News</h3>
+                  <div v-for="item in news" :key="item.id" class="bg-white rounded-lg shadow p-4 flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-2">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded">{{ item.category }}</span>
+                        <span class="text-gray-500">{{ formatDate(item.date) }}</span>
+                      </div>
+                      <p class="text-gray-800">{{ item.content }}</p>
+                      <p v-if="item.link_url" class="text-blue-600 text-sm mt-2">→ {{ item.link_url }}</p>
+                    </div>
+                    <button @click="deleteNews(item.id)" class="ml-4 text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Publications Section -->
+            <template v-if="currentSection === 'publications'">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6">Publications</h2>
+              <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-bold text-gray-900 mb-4">Add Publication</h3>
+                  <form @submit.prevent="addPublication" class="space-y-4">
+                    <input v-model="newPub.title" placeholder="Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.slug" placeholder="URL slug (auto-generated if empty)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.authors" placeholder="Authors (comma-separated)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.venue" placeholder="Venue" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <textarea v-model="newPub.abstract" placeholder="Abstract" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-20"></textarea>
+                    <input v-model="newPub.pdf_url" placeholder="PDF URL" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.doi" placeholder="DOI" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.code_url" placeholder="Code URL" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.arxiv_url" placeholder="arXiv URL" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newPub.tags" placeholder="Tags (comma-separated)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="flex gap-2">
+                      <input type="checkbox" v-model="newPub.addToNews" id="pub-add-news">
+                      <label for="pub-add-news" class="text-gray-700">Also add to News feed</label>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                      Add Publication
+                    </button>
+                  </form>
+                </div>
+
+                <div class="space-y-2">
+                  <h3 class="text-xl font-bold text-gray-900">Existing Publications</h3>
+                  <div v-for="pub in publications" :key="pub.id" class="bg-white rounded-lg shadow p-4 flex justify-between items-start">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900">{{ pub.title }}</h4>
+                      <p class="text-sm text-gray-600">{{ pub.venue }} ({{ formatDate(pub.date) }})</p>
+                    </div>
+                    <button @click="deletePub(pub.id)" class="ml-4 text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- CV Section -->
+            <template v-if="currentSection === 'cv'">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6">CV Entries</h2>
+              <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                  <h3 class="text-xl font-bold text-gray-900 mb-4">Add CV Entry</h3>
+                  <form @submit.prevent="addCVEntry" class="space-y-4">
+                    <select v-model="newCVEntry.section" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">Select Section</option>
+                      <option>Education</option>
+                      <option>Experience</option>
+                      <option>Awards</option>
+                      <option>Skills</option>
+                      <option>Publications</option>
+                    </select>
+                    <input v-model="newCVEntry.title" placeholder="Title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newCVEntry.organization" placeholder="Organization" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newCVEntry.start_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input v-model="newCVEntry.end_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <textarea v-model="newCVEntry.description" placeholder="Description" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-20"></textarea>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                      Add CV Entry
+                    </button>
+                  </form>
+                </div>
+
+                <div class="space-y-2">
+                  <h3 class="text-xl font-bold text-gray-900">Existing CV Entries</h3>
+                  <div v-for="entry in cvEntries" :key="entry.id" class="bg-white rounded-lg shadow p-4 flex justify-between items-start">
+                    <div class="flex-1">
+                      <p class="text-sm text-gray-500 font-semibold">{{ entry.section }}</p>
+                      <h4 class="font-semibold text-gray-900">{{ entry.title }}</h4>
+                      <p class="text-sm text-gray-600">{{ entry.organization }}</p>
+                    </div>
+                    <button @click="deleteCVEntry(entry.id)" class="ml-4 text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Pages/Settings Section -->
+            <template v-if="currentSection === 'pages'">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6">Page Visibility Settings</h2>
+              <div class="space-y-4">
+                <div v-for="page in pageSettings" :key="page.page_key" class="bg-white rounded-lg shadow p-6 flex justify-between items-center">
+                  <div>
+                    <h3 class="font-semibold text-gray-900 capitalize">{{ page.page_key }} Page</h3>
+                    <p class="text-sm text-gray-600">{{ page.is_public ? 'Public' : 'Private' }}</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-600">{{ page.is_public ? 'Public' : 'Private' }}</span>
+                    <button
+                      @click="togglePageVisibility(page.page_key)"
+                      :class="['px-4 py-2 rounded-lg font-semibold transition', page.is_public ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200']"
+                    >
+                      Toggle
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Placeholder for other sections -->
+            <template v-if="['talks', 'resources', 'projects', 'services', 'posts'].includes(currentSection)">
+              <h2 class="text-3xl font-bold text-gray-900 mb-6 capitalize">{{ currentSection }}</h2>
+              <div class="bg-white rounded-lg shadow-lg p-6 text-center text-gray-600">
+                <p>{{ currentSection }} section coming soon</p>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="{{ '/assets/js/supabase-client.js' | relative_url }}"></script>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          loading: true,
+          user: null,
+          isAdmin: false,
+          currentSection: 'profile',
+
+          profile: {
+            name: '', title: '', affiliation: '', email: '',
+            bio_short: '', bio_full: '', research_interests: [],
+            profile_image_url: '', cv_url: ''
+          },
+          profileInterestsText: '',
+
+          contact: {
+            email: '', office: '', office_hours: '',
+            social: { twitter: '', github: '', linkedin: '', scholar: '' }
+          },
+
+          news: [],
+          newNewsEntry: { date: new Date().toISOString().split('T')[0], category: '', content: '', link_url: '' },
+
+          publications: [],
+          newPub: { title: '', slug: '', authors: '', venue: '', date: '', abstract: '', pdf_url: '', doi: '', code_url: '', arxiv_url: '', tags: '', addToNews: false },
+
+          talks: [],
+          resources: [],
+          projects: [],
+          services: [],
+          posts: [],
+
+          cvEntries: [],
+          newCVEntry: { section: '', title: '', organization: '', start_date: '', end_date: '', description: '', sort_order: 0 },
+
+          pageSettings: [],
+
+          sections: [
+            { id: 'profile', label: 'Profile' },
+            { id: 'contact', label: 'Contact' },
+            { id: 'news', label: 'News' },
+            { id: 'publications', label: 'Publications' },
+            { id: 'talks', label: 'Talks' },
+            { id: 'resources', label: 'Resources' },
+            { id: 'projects', label: 'Projects' },
+            { id: 'services', label: 'Services' },
+            { id: 'posts', label: 'Posts' },
+            { id: 'cv', label: 'CV Entries' },
+            { id: 'pages', label: 'Page Settings' }
+          ]
+        };
+      },
+
+      async mounted() {
+        await this.initAuth();
+        if (this.user) {
+          this.isAdmin = await isUserAdmin(this.user.id);
+          if (this.isAdmin) {
+            await this.loadAllData();
+          }
+        }
+        this.loading = false;
+      },
+
+      methods: {
+        async initAuth() {
+          this.user = await getCurrentUser();
+        },
+
+        async signInWithGithub() {
+          await signInWithGithub();
+        },
+
+        async signOut() {
+          if (await supabase.auth.signOut()) {
+            window.location.href = '/';
+          }
+        },
+
+        async loadAllData() {
+          this.profile = (await fetchProfile()) || {};
+          this.profileInterestsText = (this.profile.research_interests || []).join('\n');
+          this.contact = (await fetchContact()) || { social: {} };
+          this.news = await fetchNews();
+          this.publications = await fetchPublications();
+          this.talks = await fetchTalks();
+          this.resources = await fetchResources();
+          this.projects = await fetchProjects();
+          this.services = await fetchServices();
+          this.posts = await fetchPosts();
+          this.cvEntries = await fetchCVEntries();
+          this.pageSettings = await fetchPageSettings();
+        },
+
+        async saveProfile() {
+          const profile = { ...this.profile };
+          profile.research_interests = this.profileInterestsText.split('\n').filter(i => i.trim());
+
+          const { error } = await supabase
+            .from('profile')
+            .upsert([{ id: 1, ...profile }], { onConflict: 'id' });
+
+          if (!error) alert('Profile saved!');
+          else alert('Error saving profile: ' + error.message);
+        },
+
+        async saveContact() {
+          const { error } = await supabase
+            .from('contact')
+            .upsert([{ id: 1, ...this.contact }], { onConflict: 'id' });
+
+          if (!error) alert('Contact saved!');
+          else alert('Error saving contact: ' + error.message);
+        },
+
+        async addNews() {
+          const entry = { ...this.newNewsEntry };
+          if (!entry.date || !entry.category || !entry.content) {
+            alert('Please fill in all required fields');
+            return;
+          }
+
+          const { error } = await supabase
+            .from('news')
+            .insert([entry]);
+
+          if (!error) {
+            alert('News entry added!');
+            this.news.push(entry);
+            this.newNewsEntry = { date: new Date().toISOString().split('T')[0], category: '', content: '', link_url: '' };
+          } else {
+            alert('Error: ' + error.message);
+          }
+        },
+
+        async deleteNews(id) {
+          if (confirm('Delete this news entry?')) {
+            await supabase.from('news').delete().eq('id', id);
+            this.news = this.news.filter(n => n.id !== id);
+          }
+        },
+
+        async addPublication() {
+          const pub = { ...this.newPub };
+          if (!pub.title) {
+            alert('Title is required');
+            return;
+          }
+
+          if (!pub.slug) {
+            pub.slug = this.slugify(pub.title);
+          }
+
+          pub.authors = pub.authors.split(',').map(a => a.trim()).filter(a => a);
+          pub.tags = pub.tags.split(',').map(t => t.trim()).filter(t => t);
+
+          const { error } = await supabase
+            .from('publications')
+            .insert([pub]);
+
+          if (!error) {
+            if (pub.addToNews) {
+              const newsEntry = {
+                date: pub.date,
+                category: 'Paper',
+                content: `**${pub.title}** published in ${pub.venue}`,
+                link_url: `/publications/?slug=${pub.slug}`
+              };
+              await supabase.from('news').insert([newsEntry]);
+            }
+            alert('Publication added!');
+            await this.loadAllData();
+          } else {
+            alert('Error: ' + error.message);
+          }
+        },
+
+        async deletePub(id) {
+          if (confirm('Delete this publication?')) {
+            await supabase.from('publications').delete().eq('id', id);
+            this.publications = this.publications.filter(p => p.id !== id);
+          }
+        },
+
+        async addCVEntry() {
+          const entry = { ...this.newCVEntry };
+          if (!entry.section || !entry.title) {
+            alert('Section and title are required');
+            return;
+          }
+
+          const { error } = await supabase
+            .from('cv_entries')
+            .insert([entry]);
+
+          if (!error) {
+            alert('CV entry added!');
+            this.cvEntries.push(entry);
+            this.newCVEntry = { section: '', title: '', organization: '', start_date: '', end_date: '', description: '', sort_order: 0 };
+          } else {
+            alert('Error: ' + error.message);
+          }
+        },
+
+        async deleteCVEntry(id) {
+          if (confirm('Delete this CV entry?')) {
+            await supabase.from('cv_entries').delete().eq('id', id);
+            this.cvEntries = this.cvEntries.filter(e => e.id !== id);
+          }
+        },
+
+        async togglePageVisibility(pageKey) {
+          const page = this.pageSettings.find(p => p.page_key === pageKey);
+          if (page) {
+            const { error } = await supabase
+              .from('page_settings')
+              .update({ is_public: !page.is_public })
+              .eq('page_key', pageKey);
+
+            if (!error) {
+              page.is_public = !page.is_public;
+              alert(`${pageKey} page is now ${page.is_public ? 'public' : 'private'}`);
+            }
+          }
+        },
+
+        slugify(text) {
+          return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        },
+
+        formatDate(date) {
+          if (!date) return '';
+          return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        },
+
+        async uploadProfileImage(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const fileExt = file.name.split('.').pop();
+          const fileName = `profile-${Date.now()}.${fileExt}`;
+
+          const { data, error } = await supabase
+            .storage
+            .from('site-uploads')
+            .upload(fileName, file);
+
+          if (!error) {
+            this.profile.profile_image_url = `${SUPABASE_URL}/storage/v1/object/public/site-uploads/${fileName}`;
+            alert('Image uploaded!');
+          } else {
+            alert('Upload error: ' + error.message);
+          }
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
