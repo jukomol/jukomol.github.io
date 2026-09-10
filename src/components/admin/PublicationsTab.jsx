@@ -37,12 +37,13 @@ export default function PublicationsTab() {
     try {
       if (!supabase) return
 
+      const dateISO = data.date ? new Date(data.date).toISOString() : new Date().toISOString()
       const payload = {
         title: data.title,
         authors: data.authors,
         venue: data.venue,
         link: data.link || null,
-        date: new Date().toISOString()
+        date: dateISO
       }
 
       if (editingId) {
@@ -63,11 +64,13 @@ export default function PublicationsTab() {
   }
 
   const handleEdit = (item) => {
+    const dateStr = item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     reset({
       title: item.title,
       authors: item.authors,
       venue: item.venue,
-      link: item.link || ''
+      link: item.link || '',
+      date: dateStr
     })
     setEditingId(item.id)
     setShowForm(true)
@@ -141,6 +144,15 @@ export default function PublicationsTab() {
             <input
               {...register('link')}
               type="url"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <input
+              {...register('date')}
+              type="date"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>

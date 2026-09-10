@@ -37,11 +37,12 @@ export default function NewsTab() {
     try {
       if (!supabase) return
 
+      const dateISO = data.date ? new Date(data.date).toISOString() : new Date().toISOString()
       const payload = {
         content: data.content,
         category: data.category || null,
         link: data.link || null,
-        date: new Date().toISOString()
+        date: dateISO
       }
 
       if (editingId) {
@@ -62,10 +63,12 @@ export default function NewsTab() {
   }
 
   const handleEdit = (item) => {
+    const dateStr = item.date ? new Date(item.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     reset({
       content: item.content,
       category: item.category || '',
-      link: item.link || ''
+      link: item.link || '',
+      date: dateStr
     })
     setEditingId(item.id)
     setShowForm(true)
@@ -130,6 +133,15 @@ export default function NewsTab() {
             <input
               {...register('link')}
               type="url"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <input
+              {...register('date')}
+              type="date"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>

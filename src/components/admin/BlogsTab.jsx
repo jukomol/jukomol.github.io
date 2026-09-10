@@ -80,6 +80,7 @@ export default function BlogsTab() {
       if (!supabase) return
 
       const slug = generateSlug(data.title)
+      const dateISO = data.date ? new Date(data.date).toISOString() : new Date().toISOString()
       const payload = {
         title: data.title,
         author: data.author || null,
@@ -89,7 +90,8 @@ export default function BlogsTab() {
         tags: data.tags
           ?.split(',')
           .map(t => t.trim())
-          .filter(t => t) || []
+          .filter(t => t) || [],
+        created_at: dateISO
       }
 
       if (editingId) {
@@ -115,12 +117,14 @@ export default function BlogsTab() {
   }
 
   const handleEdit = async (item) => {
+    const dateStr = item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     reset({
       title: item.title,
       author: item.author || '',
       content: item.content,
       tags: item.tags?.join(', ') || '',
-      is_pinned: item.is_pinned || false
+      is_pinned: item.is_pinned || false,
+      date: dateStr
     })
     setEditingId(item.id)
     setShowForm(true)
@@ -229,6 +233,15 @@ export default function BlogsTab() {
             <input
               {...register('author')}
               placeholder="Your name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <input
+              {...register('date')}
+              type="date"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
