@@ -18,6 +18,8 @@ navigation:
     url: "/pages/publications/"
   - title: "Presentations"
     url: "/pages/presentations/"
+  - title: "Resources"
+    url: "/pages/resources/"
   - title: "Blog"
     url: "/blog/"
   - title: "CV"
