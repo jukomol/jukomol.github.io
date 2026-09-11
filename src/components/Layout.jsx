@@ -46,8 +46,7 @@ export default function Layout() {
 
       <footer className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-8">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="mb-2 font-semibold">Jahir Uddin © 2024</p>
-          <p className="text-gray-400">University of Nebraska Medical Center | Department of Environmental, Agricultural, and Occupational Health</p>
+          <p className="font-semibold">Jahir Uddin © 2019</p>
         </div>
       </footer>
     </div>
