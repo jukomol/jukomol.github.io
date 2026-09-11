@@ -46,7 +46,7 @@ export default function Layout() {
 
       <footer className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-8">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="font-semibold">Jahir Uddin © 2019</p>
+          <p className="font-semibold">Jahir Uddin © {new Date().getFullYear()}</p>
         </div>
       </footer>
     </div>
