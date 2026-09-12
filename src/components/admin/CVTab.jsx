@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { supabase } from "../../lib/supabase"
-import { AlertCircle, CheckCircle, Upload, Plus, Trash2, Edit2 } from "lucide-react"
+import { AlertCircle, CheckCircle, Upload, Plus, Trash2, Edit2, X } from "lucide-react"
 
 export default function CVTab() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm()
@@ -15,6 +15,8 @@ export default function CVTab() {
   const [creatingCategory, setCreatingCategory] = useState(false)
   const [editingEntry, setEditingEntry] = useState(null)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [renamingCategory, setRenamingCategory] = useState(null)
+  const [renameCategoryValue, setRenameCategoryValue] = useState("")
 
   useEffect(() => {
     fetchData()
@@ -82,6 +84,45 @@ export default function CVTab() {
       setMessage({ type: "error", text: "Failed to create category: " + error.message })
     } finally {
       setCreatingCategory(false)
+    }
+  }
+
+  const handleRenameCategory = async (oldName, newName) => {
+    const trimmedNewName = newName.trim()
+
+    if (!trimmedNewName) {
+      setMessage({ type: "error", text: "Category name is required" })
+      return
+    }
+
+    if (trimmedNewName === oldName) {
+      setRenamingCategory(null)
+      return
+    }
+
+    if (categories.includes(trimmedNewName)) {
+      setMessage({ type: "error", text: "Category already exists" })
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from("cv_timeline")
+        .update({ category: trimmedNewName })
+        .eq("category", oldName)
+
+      if (error) throw error
+
+      setCategories(categories.map(c => c === oldName ? trimmedNewName : c))
+      if (selectedCategory === oldName) {
+        setSelectedCategory(trimmedNewName)
+      }
+      setRenamingCategory(null)
+      setRenameCategoryValue("")
+      setMessage({ type: "success", text: `Category renamed to "${trimmedNewName}"` })
+      await fetchData()
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to rename category: " + error.message })
     }
   }
 
@@ -247,34 +288,80 @@ export default function CVTab() {
         <h3 className="text-xl font-bold mb-4">Categories</h3>
         <div className="flex gap-2 flex-wrap mb-4">
           {categories.map(cat => (
-            <div key={cat} className="flex items-center gap-1">
-              <button
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  selectedCategory === cat
-                    ? "bg-cyan-600 text-white"
-                    : "bg-white border border-gray-300 text-gray-700 hover:border-cyan-500"
-                }`}
-              >
-                {cat}
-              </button>
-              <button
-                onClick={async () => {
-                  if (confirm(`Delete category "${cat}" and all its entries?`)) {
-                    try {
-                      await supabase.from("cv_timeline").delete().eq("category", cat)
-                      setMessage({ type: "success", text: `Category "${cat}" deleted` })
-                      fetchData()
-                    } catch (error) {
-                      setMessage({ type: "error", text: "Failed to delete category" })
-                    }
-                  }
-                }}
-                className="p-1 text-red-600 hover:bg-red-50 rounded transition"
-                title="Delete category"
-              >
-                <Trash2 size={16} />
-              </button>
+            <div key={cat}>
+              {renamingCategory === cat ? (
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    value={renameCategoryValue}
+                    onChange={(e) => setRenameCategoryValue(e.target.value)}
+                    autoFocus
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleRenameCategory(cat, renameCategoryValue)
+                      }
+                    }}
+                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  />
+                  <button
+                    onClick={() => handleRenameCategory(cat, renameCategoryValue)}
+                    className="p-1 text-green-600 hover:bg-green-50 rounded transition"
+                    title="Confirm"
+                  >
+                    <CheckCircle size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRenamingCategory(null)
+                      setRenameCategoryValue("")
+                    }}
+                    className="p-1 text-gray-600 hover:bg-gray-200 rounded transition"
+                    title="Cancel"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${
+                      selectedCategory === cat
+                        ? "bg-cyan-600 text-white"
+                        : "bg-white border border-gray-300 text-gray-700 hover:border-cyan-500"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRenamingCategory(cat)
+                      setRenameCategoryValue(cat)
+                    }}
+                    className="p-1 text-blue-600 hover:bg-blue-50 rounded transition"
+                    title="Rename category"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (confirm(`Delete category "${cat}" and all its entries?`)) {
+                        try {
+                          await supabase.from("cv_timeline").delete().eq("category", cat)
+                          setMessage({ type: "success", text: `Category "${cat}" deleted` })
+                          fetchData()
+                        } catch (error) {
+                          setMessage({ type: "error", text: "Failed to delete category" })
+                        }
+                      }
+                    }}
+                    className="p-1 text-red-600 hover:bg-red-50 rounded transition"
+                    title="Delete category"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
