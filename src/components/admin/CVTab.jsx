@@ -126,6 +126,43 @@ export default function CVTab() {
     }
   }
 
+  const handleAddNewEntry = async () => {
+    try {
+      if (!supabase) {
+        setMessage({ type: "error", text: "Supabase not configured" })
+        return
+      }
+
+      const { data: inserted, error } = await supabase
+        .from("cv_timeline")
+        .insert([{
+          category: selectedCategory,
+          title: "",
+          organization: "",
+          description: "",
+          start_date: new Date().toISOString()
+        }])
+        .select()
+
+      if (error) throw error
+
+      if (inserted?.[0]) {
+        setEditingEntry(inserted[0])
+        reset({
+          title: inserted[0].title,
+          organization: inserted[0].organization,
+          description: inserted[0].description,
+          start_date: inserted[0].start_date?.split("T")[0] || "",
+          end_date: inserted[0].end_date?.split("T")[0] || "",
+          category: inserted[0].category
+        })
+        setMessage({ type: "success", text: "Entry created! You can now add a logo." })
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to create entry: " + error.message })
+    }
+  }
+
   const handleLogoUpload = async (e, entryId) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -433,10 +470,7 @@ export default function CVTab() {
             </div>
 
             <button
-              onClick={() => {
-                setEditingEntry(null)
-                reset({ title: "", organization: "", description: "", start_date: "", end_date: "", category: selectedCategory })
-              }}
+              onClick={handleAddNewEntry}
               className="mt-4 bg-cyan-600 text-white px-6 py-2 rounded-lg hover:bg-cyan-700 transition font-semibold flex items-center gap-2"
             >
               <Plus size={18} /> Add Entry
@@ -497,54 +531,50 @@ export default function CVTab() {
                   <p className="text-xs text-gray-600 mt-1">Tip: Use **text** for bold, *text* for italic, - for bullet points, # for headings</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Logo</label>
-                  {editingEntry?.logo_url && (
-                    <div className="mb-3 flex items-center gap-3">
-                      <img src={editingEntry.logo_url} alt="Logo" className="w-20 h-20 object-cover rounded" />
-                      <span className="text-sm text-gray-600">Logo set</span>
-                    </div>
-                  )}
-                  {!editingEntry?.id && (
-                    <p className="text-sm text-gray-500 mb-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                      💡 Save the entry first, then you can add a logo
-                    </p>
-                  )}
-                  <div className="space-y-2">
-                    <div>
-                      <label className="text-xs font-semibold text-gray-600 mb-1 block">Upload File</label>
-                      <input
-                        type="file"
-                        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                        onChange={(e) => editingEntry?.id && handleLogoUpload(e, editingEntry.id)}
-                        disabled={uploadingLogo || !editingEntry?.id}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-gray-600 mb-1 block">Or Image URL</label>
-                      <input
-                        type="url"
-                        placeholder="https://example.com/logo.png"
-                        disabled={!editingEntry?.id}
-                        onBlur={async (e) => {
-                          const url = e.target.value.trim()
-                          if (url && editingEntry?.id) {
-                            try {
-                              await supabase.from("cv_timeline").update({ logo_url: url }).eq("id", editingEntry.id)
-                              setMessage({ type: "success", text: "Logo URL saved" })
-                              setEditingEntry({ ...editingEntry, logo_url: url })
-                            } catch (error) {
-                              setMessage({ type: "error", text: "Failed to save logo URL" })
+                {editingEntry?.id && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Logo</label>
+                    {editingEntry.logo_url && (
+                      <div className="mb-3 flex items-center gap-3">
+                        <img src={editingEntry.logo_url} alt="Logo" className="w-20 h-20 object-cover rounded" />
+                        <span className="text-sm text-gray-600">Logo set</span>
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-xs font-semibold text-gray-600 mb-1 block">Upload File</label>
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                          onChange={(e) => handleLogoUpload(e, editingEntry.id)}
+                          disabled={uploadingLogo}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-gray-600 mb-1 block">Or Image URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://example.com/logo.png"
+                          onBlur={async (e) => {
+                            const url = e.target.value.trim()
+                            if (url && editingEntry.id) {
+                              try {
+                                await supabase.from("cv_timeline").update({ logo_url: url }).eq("id", editingEntry.id)
+                                setMessage({ type: "success", text: "Logo URL saved" })
+                                setEditingEntry({ ...editingEntry, logo_url: url })
+                              } catch (error) {
+                                setMessage({ type: "error", text: "Failed to save logo URL" })
+                              }
                             }
-                          }
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      />
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        />
+                      </div>
                     </div>
+                    <p className="text-sm text-gray-600 mt-2">Upload JPG/PNG or provide image URL (recommended: square 100x100px)</p>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2">Upload JPG/PNG or provide image URL (recommended: square 100x100px)</p>
-                </div>
+                )}
 
                 <div className="flex gap-3 pt-4">
                   <button
