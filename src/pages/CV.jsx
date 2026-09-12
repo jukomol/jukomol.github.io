@@ -16,7 +16,7 @@ export default function CV() {
         if (supabase) {
           const [timelineRes, profileRes] = await Promise.all([
             supabase.from('cv_timeline').select('*').order('start_date', { ascending: false }),
-            supabase.from('profile').select('professional_summary').single()
+            supabase.from('profile').select('*').single()
           ])
 
           if (timelineRes.error) throw timelineRes.error
