@@ -307,7 +307,7 @@ export default function CVTab() {
                 <div key={entry.id} className="bg-white border border-gray-300 rounded-lg p-4 flex justify-between items-start">
                   <div className="flex-1 flex gap-4">
                     {entry.logo_url && (
-                      <img src={entry.logo_url} alt={entry.organization} className="w-16 h-16 object-cover rounded flex-shrink-0" />
+                      <img src={entry.logo_url} alt={entry.organization} className="w-20 h-20 object-cover rounded flex-shrink-0" />
                     )}
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900">{entry.title}</h4>
@@ -415,7 +415,7 @@ export default function CVTab() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Logo</label>
                     {editingEntry.logo_url && (
                       <div className="mb-3 flex items-center gap-3">
-                        <img src={editingEntry.logo_url} alt="Logo" className="w-12 h-12 object-cover rounded" />
+                        <img src={editingEntry.logo_url} alt="Logo" className="w-20 h-20 object-cover rounded" />
                         <span className="text-sm text-gray-600">Logo set</span>
                       </div>
                     )}

@@ -83,9 +83,14 @@ export default function CV() {
 
                   <div className="bg-white border border-cyan-200 rounded-lg p-6 hover:shadow-lg transition">
                     <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-slate-900">{item.title}</h3>
-                        <p className="text-cyan-600 font-medium">{item.organization}</p>
+                      <div className="flex-1 flex gap-4">
+                        {item.logo_url && (
+                          <img src={item.logo_url} alt={item.organization} className="w-20 h-20 object-cover rounded flex-shrink-0" />
+                        )}
+                        <div className="flex-1">
+                          <h3 className="text-xl font-semibold text-slate-900">{item.title}</h3>
+                          <p className="text-cyan-600 font-medium">{item.organization}</p>
+                        </div>
                       </div>
                       <span className="text-sm text-gray-500 font-medium whitespace-nowrap">
                         {item.start_date && format(new Date(item.start_date), 'MMM yyyy')}
