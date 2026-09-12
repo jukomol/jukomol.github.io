@@ -176,7 +176,7 @@ export default function CVTab() {
 
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
           .from("cv_timeline")
           .insert([{
             category: selectedCategory,
@@ -186,8 +186,25 @@ export default function CVTab() {
             start_date: data.start_date,
             end_date: data.end_date || null
           }])
+          .select()
 
         if (error) throw error
+
+        // Auto-switch to edit mode so user can upload logo
+        if (inserted?.[0]) {
+          setMessage({ type: "success", text: "Entry created! Now you can upload a logo." })
+          setEditingEntry(inserted[0])
+          reset({
+            title: inserted[0].title,
+            organization: inserted[0].organization,
+            description: inserted[0].description,
+            start_date: inserted[0].start_date?.split("T")[0] || "",
+            end_date: inserted[0].end_date?.split("T")[0] || "",
+            category: inserted[0].category
+          })
+          await fetchData()
+          return
+        }
       }
 
       setMessage({ type: "success", text: "Entry saved successfully" })
@@ -230,17 +247,35 @@ export default function CVTab() {
         <h3 className="text-xl font-bold mb-4">Categories</h3>
         <div className="flex gap-2 flex-wrap mb-4">
           {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                selectedCategory === cat
-                  ? "bg-cyan-600 text-white"
-                  : "bg-white border border-gray-300 text-gray-700 hover:border-cyan-500"
-              }`}
-            >
-              {cat}
-            </button>
+            <div key={cat} className="flex items-center gap-1">
+              <button
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  selectedCategory === cat
+                    ? "bg-cyan-600 text-white"
+                    : "bg-white border border-gray-300 text-gray-700 hover:border-cyan-500"
+                }`}
+              >
+                {cat}
+              </button>
+              <button
+                onClick={async () => {
+                  if (confirm(`Delete category "${cat}" and all its entries?`)) {
+                    try {
+                      await supabase.from("cv_timeline").delete().eq("category", cat)
+                      setMessage({ type: "success", text: `Category "${cat}" deleted` })
+                      fetchData()
+                    } catch (error) {
+                      setMessage({ type: "error", text: "Failed to delete category" })
+                    }
+                  }
+                }}
+                className="p-1 text-red-600 hover:bg-red-50 rounded transition"
+                title="Delete category"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           ))}
         </div>
 
@@ -270,10 +305,15 @@ export default function CVTab() {
             <div className="space-y-3">
               {categoryEntries.map(entry => (
                 <div key={entry.id} className="bg-white border border-gray-300 rounded-lg p-4 flex justify-between items-start">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{entry.title}</h4>
-                    <p className="text-sm text-gray-600">{entry.organization}</p>
-                    {entry.description && <p className="text-sm text-gray-700 mt-1">{entry.description}</p>}
+                  <div className="flex-1 flex gap-4">
+                    {entry.logo_url && (
+                      <img src={entry.logo_url} alt={entry.organization} className="w-16 h-16 object-cover rounded flex-shrink-0" />
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{entry.title}</h4>
+                      <p className="text-sm text-gray-600">{entry.organization}</p>
+                      {entry.description && <p className="text-sm text-gray-700 mt-1">{entry.description}</p>}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -370,23 +410,48 @@ export default function CVTab() {
                   <p className="text-xs text-gray-600 mt-1">Tip: Use **text** for bold, *text* for italic, - for bullet points, # for headings</p>
                 </div>
 
-                {editingEntry && (
+                {editingEntry && editingEntry.id && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Logo</label>
                     {editingEntry.logo_url && (
                       <div className="mb-3 flex items-center gap-3">
                         <img src={editingEntry.logo_url} alt="Logo" className="w-12 h-12 object-cover rounded" />
-                        <span className="text-sm text-gray-600">Logo uploaded</span>
+                        <span className="text-sm text-gray-600">Logo set</span>
                       </div>
                     )}
-                    <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-                      onChange={(e) => handleLogoUpload(e, editingEntry.id)}
-                      disabled={uploadingLogo}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                    <p className="text-sm text-gray-600 mt-1">Upload JPG or PNG logo (recommended: square 100x100px)</p>
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-xs font-semibold text-gray-600 mb-1 block">Upload File</label>
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                          onChange={(e) => handleLogoUpload(e, editingEntry.id)}
+                          disabled={uploadingLogo}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:bg-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-gray-600 mb-1 block">Or Image URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://example.com/logo.png"
+                          onBlur={async (e) => {
+                            const url = e.target.value.trim()
+                            if (url && editingEntry.id) {
+                              try {
+                                await supabase.from("cv_timeline").update({ logo_url: url }).eq("id", editingEntry.id)
+                                setMessage({ type: "success", text: "Logo URL saved" })
+                                setEditingEntry({ ...editingEntry, logo_url: url })
+                              } catch (error) {
+                                setMessage({ type: "error", text: "Failed to save logo URL" })
+                              }
+                            }
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">Upload JPG/PNG or provide image URL (recommended: square 100x100px)</p>
                   </div>
                 )}
 
