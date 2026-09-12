@@ -7,28 +7,31 @@ import ReactMarkdown from 'react-markdown'
 
 export default function CV() {
   const [timeline, setTimeline] = useState([])
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchTimeline = async () => {
+    const fetchData = async () => {
       try {
         if (supabase) {
-          const { data, error } = await supabase
-            .from('cv_timeline')
-            .select('*')
-            .order('start_date', { ascending: false })
+          const [timelineRes, profileRes] = await Promise.all([
+            supabase.from('cv_timeline').select('*').order('start_date', { ascending: false }),
+            supabase.from('profile').select('professional_summary').single()
+          ])
 
-          if (error) throw error
-          if (data) setTimeline(data)
+          if (timelineRes.error) throw timelineRes.error
+          if (timelineRes.data) setTimeline(timelineRes.data)
+
+          if (profileRes.data) setProfile(profileRes.data)
         }
       } catch (error) {
-        console.error('Error fetching CV timeline:', error)
+        console.error('Error fetching CV data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchTimeline()
+    fetchData()
   }, [])
 
   const groupedByCategory = timeline.reduce((acc, item) => {
@@ -56,12 +59,14 @@ export default function CV() {
         </div>
 
         {/* Professional Summary */}
-        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-8 mb-12">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">Professional Summary</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Dedicated PhD Student and Graduate Research Assistant at the University of Nebraska Medical Center with expertise in Human Factor Engineering, Computer Vision, and Robotics. Passionate about developing innovative solutions at the intersection of physical AI and human-machine interaction. Strong background in research, data analysis, and collaborative problem-solving with a commitment to advancing occupational health and safety through technology.
-          </p>
-        </div>
+        {profile?.professional_summary && (
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-8 mb-12">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">Professional Summary</h2>
+            <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+              <ReactMarkdown>{profile.professional_summary}</ReactMarkdown>
+            </div>
+          </div>
+        )}
 
         {timeline.length > 0 && Object.entries(groupedByCategory).map(([category, items]) => (
           <div key={category} className="mb-12">

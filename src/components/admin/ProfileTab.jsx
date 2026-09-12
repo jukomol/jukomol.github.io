@@ -28,6 +28,7 @@ export default function ProfileTab() {
             name: data.name || '',
             current_position: data.current_position || '',
             bio: data.bio || '',
+            professional_summary: data.professional_summary || '',
             affiliation: data.affiliation || '',
             email: data.email || '',
             address: data.address || '',
@@ -43,6 +44,7 @@ export default function ProfileTab() {
             name: FALLBACK_PROFILE.name,
             current_position: '',
             bio: FALLBACK_PROFILE.bio,
+            professional_summary: '',
             affiliation: FALLBACK_PROFILE.affiliation,
             email: '',
             address: 'Omaha, Nebraska',
@@ -155,6 +157,7 @@ export default function ProfileTab() {
         name: data.name,
         current_position: data.current_position || null,
         bio: data.bio,
+        professional_summary: data.professional_summary || null,
         affiliation: data.affiliation,
         email: data.email || null,
         address: data.address || null,
@@ -303,6 +306,17 @@ export default function ProfileTab() {
             rows={3}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Professional Summary (CV Page)</label>
+          <textarea
+            {...register('professional_summary')}
+            rows={4}
+            placeholder="This will appear on the CV page as the professional summary section. You can use markdown formatting for styling."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+          />
+          <p className="text-xs text-gray-600 mt-1">Markdown supported: **bold**, *italic*, [links](url), # headings, - bullets</p>
         </div>
 
         <div>
