@@ -123,7 +123,7 @@ export default function ProfileTab() {
         return
       }
 
-      const fileName = 'cv-latest.pdf'
+      const fileName = 'CV-JAHIR-UDDIN.pdf'
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('portfolio-assets')
         .upload(fileName, file, { upsert: true })

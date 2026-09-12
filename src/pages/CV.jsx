@@ -50,7 +50,7 @@ export default function CV() {
             <p className="text-gray-600 mt-2">PhD Student & Graduate Research Assistant</p>
           </div>
           <a
-            href={`${supabase?.storage.from('portfolio-assets').getPublicUrl('cv-latest.pdf').data.publicUrl || '/Jahir_Uddin_CV.pdf'}`}
+            href={`${supabase?.storage.from('portfolio-assets').getPublicUrl('CV-JAHIR-UDDIN.pdf').data.publicUrl || '/Jahir_Uddin_CV.pdf'}`}
             download="Jahir_Uddin_CV.pdf"
             className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition flex items-center gap-2 font-semibold"
           >
