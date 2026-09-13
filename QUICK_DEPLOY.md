@@ -9,6 +9,10 @@ Copy-paste commands for fast deployment after code changes.
 git clone https://github.com/jukomol/jukomol.github.io.git
 cd jukomol.github.io
 
+# Check current branch and switch to main
+git branch -a              # See all branches
+git checkout main          # Switch to main branch
+
 # Configure git
 git config user.name "Your Name"
 git config user.email "your-email@example.com"

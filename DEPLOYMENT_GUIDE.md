@@ -38,7 +38,13 @@ git --version
 ```bash
 git clone https://github.com/jukomol/jukomol.github.io.git
 cd jukomol.github.io
+
+# Important: Switch to main branch (code is on main, not master)
+git branch -a              # List all branches
+git checkout main          # Switch to main branch
 ```
+
+**Note:** By default, cloning may show the master branch, but all development code is on the `main` branch. Always switch to `main` first.
 
 ### 2. Configure Git (First Time Only)
 
@@ -281,6 +287,7 @@ echo "✅ Deployment complete!"
 ```bash
 git clone https://github.com/jukomol/jukomol.github.io.git
 cd jukomol.github.io
+git checkout main          # ⚠️ Important: Switch to main branch
 npm install
 ```
 
@@ -480,6 +487,24 @@ git pull origin main
 # Then push
 git push origin main
 ```
+
+### Issue: Clone defaults to master instead of main
+
+**Why it happens:**
+GitHub may have master set as the default branch instead of main. The clone succeeds but checks out the wrong branch.
+
+**Quick Fix:**
+```bash
+git checkout main
+```
+
+**Permanent Fix (One-time on GitHub):**
+1. Go to https://github.com/jukomol/jukomol.github.io
+2. Settings → Branches
+3. Change "Default branch" from `master` to `main`
+4. Confirm
+
+After this, clones will default to `main` automatically.
 
 ### Issue: Node version incompatible
 
