@@ -1,0 +1,72 @@
+name: Supabase Keep-Alive
+
+# Run every 3 days to prevent Supabase free-tier auto-pause
+# (Supabase pauses projects after ~1-2 weeks of inactivity)
+on:
+  schedule:
+    - cron: '0 12 */3 * *'  # Every 3 days at 12:00 UTC
+  workflow_dispatch:  # Allow manual trigger from GitHub Actions tab
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create keep-alive script
+        run: |
+          cat > keep-alive.js << 'EOF'
+          const { createClient } = require('@supabase/supabase-js');
+
+          const supabaseUrl = process.env.VITE_SUPABASE_URL;
+          const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+          if (!supabaseUrl || !supabaseKey) {
+            console.log('❌ Supabase credentials not configured, skipping.');
+            process.exit(1);
+          }
+
+          const supabase = createClient(supabaseUrl, supabaseKey);
+
+          async function keepAlive() {
+            try {
+              // Query the lightweight 'profile' table to ping the database
+              const { data, error } = await supabase
+                .from('profile')
+                .select('*')
+                .limit(1);
+
+              if (error) {
+                console.log('❌ Keep-alive failed:', error.message);
+                process.exit(1);
+              }
+
+              console.log('✅ Supabase keep-alive successful!');
+              console.log(`   Database responded with: ${data.length} row(s) from profile table`);
+              console.log(`   Timestamp: ${new Date().toISOString()}`);
+            } catch (err) {
+              console.log('❌ Keep-alive error:', err.message);
+              process.exit(1);
+            }
+          }
+
+          keepAlive();
+          EOF
+
+      - name: Install Supabase client
+        run: npm install @supabase/supabase-js
+
+      - name: Run keep-alive ping
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node keep-alive.js
