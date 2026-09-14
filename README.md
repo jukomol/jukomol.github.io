@@ -469,6 +469,11 @@ For issues or questions:
 - Search [existing GitHub issues](https://github.com/jukomol/test-site/issues)
 - Create a [new issue](https://github.com/jukomol/test-site/issues/new) with details
 
+## Contributors
+
+**Main Contributor:**
+- **Jahir Uddin** ([@jukomol](https://github.com/jukomol)) - Creator and maintainer of the Academic Portfolio Website
+
 ## Environment Variables Reference
 
 `.env` file variables (never commit to Git):
