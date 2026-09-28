@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Trash2, Plus, Pin, PinOff, AlertCircle, CheckCircle } from 'lucide-react'
-
-const NOTE_COLORS = {
-  yellow: { bg: 'bg-yellow-50', border: 'border-yellow-300', badge: 'bg-yellow-200' },
-  blue: { bg: 'bg-blue-50', border: 'border-blue-300', badge: 'bg-blue-200' },
-  pink: { bg: 'bg-pink-50', border: 'border-pink-300', badge: 'bg-pink-200' },
-  green: { bg: 'bg-green-50', border: 'border-green-300', badge: 'bg-green-200' },
-  purple: { bg: 'bg-purple-50', border: 'border-purple-300', badge: 'bg-purple-200' },
-}
+import { Trash2, Plus, Send, Eye } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 export default function NotesTab() {
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState(null)
-  const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState({ title: '', content: '', color: 'yellow' })
+  const [selectedNote, setSelectedNote] = useState(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editContent, setEditContent] = useState('')
+  const [publishingId, setPublishingId] = useState(null)
 
   useEffect(() => {
     fetchNotes()
@@ -27,7 +22,6 @@ export default function NotesTab() {
         const { data, error } = await supabase
           .from('notes')
           .select('*')
-          .order('pinned', { ascending: false })
           .order('updated_at', { ascending: false })
 
         if (error) throw error
@@ -40,56 +34,57 @@ export default function NotesTab() {
     }
   }
 
-  const handleSave = async (e) => {
-    e.preventDefault()
+  const handleNewNote = () => {
+    setEditTitle('')
+    setEditContent('')
+    setSelectedNote(null)
+  }
 
-    if (!formData.title.trim() || !formData.content.trim()) {
+  const handleSelectNote = (note) => {
+    setSelectedNote(note.id)
+    setEditTitle(note.title)
+    setEditContent(note.content)
+  }
+
+  const handleSave = async () => {
+    if (!editTitle.trim() || !editContent.trim()) {
       setMessage({ type: 'error', text: 'Title and content are required' })
       return
     }
 
     try {
-      if (editingId) {
+      if (selectedNote) {
+        // Update existing note
         const { error } = await supabase
           .from('notes')
           .update({
-            title: formData.title,
-            content: formData.content,
-            color: formData.color,
+            title: editTitle,
+            content: editContent,
             updated_at: new Date(),
           })
-          .eq('id', editingId)
+          .eq('id', selectedNote)
 
         if (error) throw error
-        setMessage({ type: 'success', text: 'Note updated successfully' })
+        setMessage({ type: 'success', text: 'Note updated' })
       } else {
-        const { error } = await supabase
+        // Create new note
+        const { data, error } = await supabase
           .from('notes')
           .insert([{
-            title: formData.title,
-            content: formData.content,
-            color: formData.color,
+            title: editTitle,
+            content: editContent,
           }])
+          .select()
 
         if (error) throw error
-        setMessage({ type: 'success', text: 'Note created successfully' })
+        setMessage({ type: 'success', text: 'Note created' })
+        setSelectedNote(data[0].id)
       }
 
-      setFormData({ title: '', content: '', color: 'yellow' })
-      setEditingId(null)
       await fetchNotes()
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to save note: ' + error.message })
     }
-  }
-
-  const handleEdit = (note) => {
-    setEditingId(note.id)
-    setFormData({
-      title: note.title,
-      content: note.content,
-      color: note.color,
-    })
   }
 
   const handleDelete = async (id) => {
@@ -103,167 +98,193 @@ export default function NotesTab() {
 
       if (error) throw error
       setMessage({ type: 'success', text: 'Note deleted' })
+      if (selectedNote === id) {
+        setSelectedNote(null)
+        setEditTitle('')
+        setEditContent('')
+      }
       await fetchNotes()
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to delete note: ' + error.message })
     }
   }
 
-  const handlePin = async (id, isPinned) => {
+  const generateSlug = (title) => {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+  }
+
+  const handlePublish = async () => {
+    if (!selectedNote || !editTitle.trim() || !editContent.trim()) {
+      setMessage({ type: 'error', text: 'Note must have title and content' })
+      return
+    }
+
+    setPublishingId(selectedNote)
+
     try {
+      const slug = generateSlug(editTitle)
+
       const { error } = await supabase
-        .from('notes')
-        .update({ pinned: !isPinned })
-        .eq('id', id)
+        .from('blogs')
+        .insert([{
+          title: editTitle,
+          slug: slug,
+          content: editContent,
+          created_at: new Date(),
+        }])
 
       if (error) throw error
+      setMessage({ type: 'success', text: '🎉 Published as blog post!' })
+
+      // Update note to mark it as published
+      await supabase
+        .from('notes')
+        .update({ published: true })
+        .eq('id', selectedNote)
+
       await fetchNotes()
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update note' })
+      if (error.message.includes('duplicate key')) {
+        setMessage({ type: 'error', text: 'Blog post with this slug already exists' })
+      } else {
+        setMessage({ type: 'error', text: 'Failed to publish: ' + error.message })
+      }
+    } finally {
+      setPublishingId(null)
     }
   }
 
   if (loading) return <p className="text-gray-500">Loading notes...</p>
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Personal Notes</h2>
-
+    <div className="h-screen flex flex-col bg-white">
       {message && (
-        <div className={`flex gap-3 mb-6 p-4 rounded-lg ${
+        <div className={`flex gap-3 p-4 ${
           message.type === 'success'
-            ? 'bg-green-50 border border-green-200'
-            : 'bg-red-50 border border-red-200'
+            ? 'bg-green-50 border-b border-green-200'
+            : 'bg-red-50 border-b border-red-200'
         }`}>
-          {message.type === 'success' ? (
-            <CheckCircle className="text-green-600 flex-shrink-0" />
-          ) : (
-            <AlertCircle className="text-red-600 flex-shrink-0" />
-          )}
           <p className={message.type === 'success' ? 'text-green-700' : 'text-red-700'}>
             {message.text}
           </p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Notes Grid */}
-        <div className="lg:col-span-2">
-          <h3 className="text-lg font-bold mb-4">Your Notes ({notes.length})</h3>
-          {notes.length > 0 ? (
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-              {notes.map(note => {
-                const colors = NOTE_COLORS[note.color] || NOTE_COLORS.yellow
-                return (
-                  <div
-                    key={note.id}
-                    className={`${colors.bg} border-2 ${colors.border} rounded-lg p-4 relative group hover:shadow-lg transition`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-bold text-gray-900 flex-1 pr-2 line-clamp-2">{note.title}</h4>
-                      <button
-                        onClick={() => handlePin(note.id, note.pinned)}
-                        className="p-1 text-gray-500 hover:bg-white rounded opacity-0 group-hover:opacity-100 transition"
-                        title={note.pinned ? 'Unpin' : 'Pin'}
-                      >
-                        {note.pinned ? <Pin size={16} className="fill-current" /> : <PinOff size={16} />}
-                      </button>
-                    </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Notes List - Left Sidebar */}
+        <div className="w-64 border-r border-gray-200 overflow-y-auto bg-gray-50">
+          <div className="p-4 border-b border-gray-200">
+            <button
+              onClick={handleNewNote}
+              className="w-full bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition font-semibold flex items-center justify-center gap-2"
+            >
+              <Plus size={18} /> New Note
+            </button>
+          </div>
 
-                    <p className="text-gray-700 text-sm mb-3 line-clamp-3 whitespace-pre-wrap">
-                      {note.content}
-                    </p>
+          <div className="divide-y divide-gray-200">
+            {notes.map(note => (
+              <div
+                key={note.id}
+                onClick={() => handleSelectNote(note)}
+                className={`p-4 cursor-pointer transition hover:bg-gray-100 ${
+                  selectedNote === note.id ? 'bg-cyan-50 border-l-4 border-cyan-600' : ''
+                }`}
+              >
+                <h4 className="font-semibold text-gray-900 line-clamp-2 text-sm">
+                  {note.title}
+                </h4>
+                <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                  {note.content.substring(0, 50)}...
+                </p>
+              </div>
+            ))}
+          </div>
 
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                      <button
-                        onClick={() => handleEdit(note)}
-                        className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(note.id)}
-                        className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition flex items-center gap-1"
-                      >
-                        <Trash2 size={12} /> Delete
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-gray-600">No notes yet. Create your first note!</p>
+          {notes.length === 0 && (
+            <div className="p-8 text-center text-gray-500">
+              <p className="text-sm">No notes yet</p>
             </div>
           )}
         </div>
 
-        {/* Create/Edit Form */}
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold mb-4">{editingId ? 'Edit Note' : 'New Note'}</h3>
-
-          <form onSubmit={handleSave} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Note title..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Color</label>
-              <div className="flex gap-2">
-                {Object.keys(NOTE_COLORS).map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, color })}
-                    className={`w-8 h-8 rounded ${NOTE_COLORS[color].badge} border-2 ${
-                      formData.color === color ? 'border-gray-900' : 'border-transparent'
-                    }`}
-                    title={color}
+        {/* Editor - Right Side */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {selectedNote || editTitle || editContent ? (
+            <>
+              {/* Editor Header */}
+              <div className="border-b border-gray-200 p-6 flex justify-between items-center bg-white">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Note title..."
+                    className="text-3xl font-bold text-gray-900 bg-transparent border-none focus:outline-none w-full"
                   />
-                ))}
+                </div>
+                <div className="flex gap-2 ml-4">
+                  <button
+                    onClick={handleSave}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handlePublish}
+                    disabled={publishingId === selectedNote}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 flex items-center gap-2"
+                  >
+                    <Send size={16} /> {publishingId === selectedNote ? 'Publishing...' : 'Publish'}
+                  </button>
+                  {selectedNote && (
+                    <button
+                      onClick={() => handleDelete(selectedNote)}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Editor Content - Split View */}
+              <div className="flex flex-1 overflow-hidden">
+                {/* Markdown Editor */}
+                <div className="flex-1 flex flex-col overflow-hidden border-r border-gray-200">
+                  <div className="p-6 overflow-y-auto flex-1">
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      placeholder="Write your note in markdown... You can publish this as a blog post!"
+                      className="w-full h-full font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
+                      spellCheck="true"
+                    />
+                  </div>
+                </div>
+
+                {/* Markdown Preview */}
+                <div className="flex-1 overflow-y-auto bg-white p-6">
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>{editContent}</ReactMarkdown>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <Eye size={48} className="mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-semibold">Select a note or create a new one</p>
+                <p className="text-sm mt-2">Write in markdown and preview in real-time</p>
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Content</label>
-              <textarea
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Write your note..."
-                rows={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
-              />
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="flex-1 bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition font-semibold flex items-center justify-center gap-2"
-              >
-                <Plus size={18} /> {editingId ? 'Update' : 'Create'}
-              </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(null)
-                    setFormData({ title: '', content: '', color: 'yellow' })
-                  }}
-                  className="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition font-semibold"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
+          )}
         </div>
       </div>
     </div>
