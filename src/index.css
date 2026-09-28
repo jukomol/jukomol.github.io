@@ -56,3 +56,27 @@ html {
 .prose blockquote {
   @apply border-l-4 border-gray-300 pl-4 italic my-3;
 }
+
+.prose table {
+  @apply w-full border-collapse border border-gray-300 my-3;
+}
+
+.prose thead {
+  @apply bg-gray-100;
+}
+
+.prose th {
+  @apply border border-gray-300 px-3 py-2 text-left font-semibold text-gray-900;
+}
+
+.prose td {
+  @apply border border-gray-300 px-3 py-2;
+}
+
+.prose tbody tr:nth-child(odd) {
+  @apply bg-white;
+}
+
+.prose tbody tr:nth-child(even) {
+  @apply bg-gray-50;
+}

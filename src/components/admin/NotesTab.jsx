@@ -220,7 +220,7 @@ export default function NotesTab() {
 
         {/* Editor - Right Side */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {selectedNote || isCreating || editTitle || editContent ? (
+          {selectedNote || isCreating ? (
             <>
               {/* Editor Header */}
               <div className="border-b border-gray-200 p-6 flex justify-between items-center bg-white">
