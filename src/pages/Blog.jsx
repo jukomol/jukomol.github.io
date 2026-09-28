@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { format } from 'date-fns'
 import { Search } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([])
@@ -78,9 +79,9 @@ export default function Blog() {
                     </p>
                     {blog.author && <p className="text-sm text-gray-500">by {blog.author}</p>}
                   </div>
-                  <p className="text-gray-700 mb-3 line-clamp-2 leading-relaxed">
-                    {blog.content.substring(0, 150)}...
-                  </p>
+                  <div className="text-gray-700 mb-3 line-clamp-2 leading-relaxed prose prose-sm max-w-none">
+                    <ReactMarkdown>{blog.content.substring(0, 150)}...</ReactMarkdown>
+                  </div>
                   {blog.tags && blog.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {blog.tags.map((tag, idx) => (
@@ -114,9 +115,9 @@ export default function Blog() {
                     </p>
                     {blog.author && <p className="text-sm text-gray-500">by {blog.author}</p>}
                   </div>
-                  <p className="text-gray-700 mb-3 line-clamp-2 leading-relaxed">
-                    {blog.content.substring(0, 150)}...
-                  </p>
+                  <div className="text-gray-700 mb-3 line-clamp-2 leading-relaxed prose prose-sm max-w-none">
+                    <ReactMarkdown>{blog.content.substring(0, 150)}...</ReactMarkdown>
+                  </div>
                   {blog.tags && blog.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {blog.tags.map((tag, idx) => (

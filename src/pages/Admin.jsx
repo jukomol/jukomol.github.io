@@ -7,6 +7,7 @@ import NewsTab from '../components/admin/NewsTab'
 import PublicationsTab from '../components/admin/PublicationsTab'
 import CVTab from '../components/admin/CVTab'
 import BlogsTab from '../components/admin/BlogsTab'
+import NotesTab from '../components/admin/NotesTab'
 
 export default function Admin() {
   const [user, setUser] = useState(null)
@@ -66,7 +67,7 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto py-8 px-4">
         <div className="flex gap-1 mb-8 border-b-2 border-gray-200 overflow-x-auto bg-white rounded-t-lg">
-          {['profile', 'news', 'publications', 'cv', 'blogs'].map(tab => (
+          {['profile', 'news', 'publications', 'cv', 'blogs', 'notes'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -87,6 +88,7 @@ export default function Admin() {
           {activeTab === 'publications' && <PublicationsTab />}
           {activeTab === 'cv' && <CVTab />}
           {activeTab === 'blogs' && <BlogsTab />}
+          {activeTab === 'notes' && <NotesTab />}
         </div>
       </div>
     </div>
