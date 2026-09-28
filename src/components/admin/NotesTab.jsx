@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Trash2, Plus, Send, Eye } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function NotesTab() {
   const [notes, setNotes] = useState([])
@@ -11,6 +12,7 @@ export default function NotesTab() {
   const [editTitle, setEditTitle] = useState('')
   const [editContent, setEditContent] = useState('')
   const [publishingId, setPublishingId] = useState(null)
+  const [isCreating, setIsCreating] = useState(false)
 
   useEffect(() => {
     fetchNotes()
@@ -38,12 +40,14 @@ export default function NotesTab() {
     setEditTitle('')
     setEditContent('')
     setSelectedNote(null)
+    setIsCreating(true)
   }
 
   const handleSelectNote = (note) => {
     setSelectedNote(note.id)
     setEditTitle(note.title)
     setEditContent(note.content)
+    setIsCreating(false)
   }
 
   const handleSave = async () => {
@@ -79,6 +83,7 @@ export default function NotesTab() {
         if (error) throw error
         setMessage({ type: 'success', text: 'Note created' })
         setSelectedNote(data[0].id)
+        setIsCreating(false)
       }
 
       await fetchNotes()
@@ -215,7 +220,7 @@ export default function NotesTab() {
 
         {/* Editor - Right Side */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {selectedNote || editTitle || editContent ? (
+          {selectedNote || isCreating || editTitle || editContent ? (
             <>
               {/* Editor Header */}
               <div className="border-b border-gray-200 p-6 flex justify-between items-center bg-white">
@@ -271,7 +276,7 @@ export default function NotesTab() {
                 {/* Markdown Preview */}
                 <div className="flex-1 overflow-y-auto bg-white p-6">
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown>{editContent}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{editContent}</ReactMarkdown>
                   </div>
                 </div>
               </div>

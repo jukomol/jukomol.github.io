@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { format } from 'date-fns'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { ArrowLeft } from 'lucide-react'
 
 export default function BlogDetail() {
@@ -93,7 +94,7 @@ export default function BlogDetail() {
           </div>
 
           <div className="prose max-w-none text-gray-700">
-            <ReactMarkdown>{blog.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.content}</ReactMarkdown>
           </div>
         </article>
       </div>

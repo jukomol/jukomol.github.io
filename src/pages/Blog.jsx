@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { format } from 'date-fns'
 import { Search } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([])
@@ -80,7 +81,7 @@ export default function Blog() {
                     {blog.author && <p className="text-sm text-gray-500">by {blog.author}</p>}
                   </div>
                   <div className="text-gray-700 mb-3 line-clamp-2 leading-relaxed prose prose-sm max-w-none">
-                    <ReactMarkdown>{blog.content.substring(0, 150)}...</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.content.substring(0, 150)}...</ReactMarkdown>
                   </div>
                   {blog.tags && blog.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -116,7 +117,7 @@ export default function Blog() {
                     {blog.author && <p className="text-sm text-gray-500">by {blog.author}</p>}
                   </div>
                   <div className="text-gray-700 mb-3 line-clamp-2 leading-relaxed prose prose-sm max-w-none">
-                    <ReactMarkdown>{blog.content.substring(0, 150)}...</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.content.substring(0, 150)}...</ReactMarkdown>
                   </div>
                   {blog.tags && blog.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
