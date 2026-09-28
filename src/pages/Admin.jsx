@@ -54,24 +54,24 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 flex justify-between items-center gap-3">
+          <h1 className="text-xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-semibold"
+            className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition font-semibold shrink-0"
           >
-            <LogOut size={20} /> Logout
+            <LogOut size={18} /> Logout
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-8 px-4">
-        <div className="flex gap-1 mb-8 border-b-2 border-gray-200 overflow-x-auto bg-white rounded-t-lg">
+      <div className="max-w-7xl mx-auto py-4 sm:py-8 px-3 sm:px-4">
+        <div className="flex gap-1 mb-4 sm:mb-8 border-b-2 border-gray-200 overflow-x-auto no-scrollbar bg-white rounded-t-lg">
           {['profile', 'news', 'publications', 'cv', 'blogs', 'notes'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-semibold capitalize whitespace-nowrap transition ${
+              className={`px-4 sm:px-6 py-3 font-semibold capitalize whitespace-nowrap transition ${
                 activeTab === tab
                   ? 'text-cyan-600 border-b-3 border-cyan-600 bg-cyan-50'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -82,7 +82,7 @@ export default function Admin() {
           ))}
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-8">
           {activeTab === 'profile' && <ProfileTab />}
           {activeTab === 'news' && <NewsTab />}
           {activeTab === 'publications' && <PublicationsTab />}

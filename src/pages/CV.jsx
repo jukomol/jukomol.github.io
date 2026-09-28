@@ -15,7 +15,10 @@ export default function CV() {
       try {
         if (supabase) {
           const [timelineRes, profileRes] = await Promise.all([
-            supabase.from('cv_timeline').select('*').order('start_date', { ascending: false }),
+            supabase.from('cv_timeline').select('*')
+              .order('category_order', { ascending: true })
+              .order('sort_order', { ascending: true })
+              .order('start_date', { ascending: false }),
             supabase.from('profile').select('*').single()
           ])
 

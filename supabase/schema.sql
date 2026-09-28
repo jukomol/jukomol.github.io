@@ -103,6 +103,10 @@ CREATE TABLE IF NOT EXISTS cv_timeline (
   -- Logo/Image
   logo_url TEXT, -- Stored in 'portfolio-assets' bucket
 
+  -- Ordering (set by drag-and-drop in the admin panel)
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  category_order INTEGER NOT NULL DEFAULT 0,
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -129,6 +133,27 @@ CREATE TABLE IF NOT EXISTS blogs (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- =====================================================
+-- NOTES TABLE (private, admin only)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS notes (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL, -- Markdown format
+  color TEXT DEFAULT 'default',
+  pinned BOOLEAN DEFAULT FALSE,
+  archived BOOLEAN NOT NULL DEFAULT FALSE,
+  labels TEXT[] NOT NULL DEFAULT '{}',
+  published BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Authenticated users can manage notes" ON notes FOR ALL
+  USING ((SELECT auth.role()) = 'authenticated')
+  WITH CHECK ((SELECT auth.role()) = 'authenticated');
 
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES

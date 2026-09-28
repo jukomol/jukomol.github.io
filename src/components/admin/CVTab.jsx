@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { supabase } from "../../lib/supabase"
-import { AlertCircle, CheckCircle, Upload, Plus, Trash2, Edit2, X } from "lucide-react"
+import { AlertCircle, CheckCircle, Plus, Trash2, Edit2, X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, GripVertical } from "lucide-react"
 
 export default function CVTab() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm()
@@ -19,6 +19,7 @@ export default function CVTab() {
   const [renameCategoryValue, setRenameCategoryValue] = useState("")
   const [isCreatingNewEntry, setIsCreatingNewEntry] = useState(false)
   const [draggedItem, setDraggedItem] = useState(null)
+  const [draggedCategory, setDraggedCategory] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -30,6 +31,7 @@ export default function CVTab() {
         const { data: timelineData, error: timelineError } = await supabase
           .from("cv_timeline")
           .select("*")
+          .order("category_order", { ascending: true })
           .order("sort_order", { ascending: true })
           .order("start_date", { ascending: false })
 
@@ -73,7 +75,8 @@ export default function CVTab() {
           title: "New Entry",
           organization: "",
           description: "",
-          start_date: new Date().toISOString()
+          start_date: new Date().toISOString(),
+          category_order: categories.length
         }])
 
       if (error) throw error
@@ -244,7 +247,9 @@ export default function CVTab() {
             organization: data.organization,
             description: data.description,
             start_date: data.start_date,
-            end_date: data.end_date || null
+            end_date: data.end_date || null,
+            category_order: timeline.find(e => e.category === selectedCategory)?.category_order ?? 0,
+            sort_order: categoryEntries.length
           }])
           .select()
 
@@ -278,6 +283,41 @@ export default function CVTab() {
 
   const categoryEntries = timeline.filter(item => item.category === selectedCategory)
 
+  const moveInArray = (arr, from, to) => {
+    const next = [...arr]
+    const [item] = next.splice(from, 1)
+    next.splice(to, 0, item)
+    return next
+  }
+
+  const persistOrder = async (updates, label) => {
+    const results = await Promise.all(updates)
+    const failed = results.find(r => r.error)
+    if (failed) setMessage({ type: "error", text: `Failed to update ${label} order: ${failed.error.message}` })
+    await fetchData()
+  }
+
+  const reorderCategories = async (from, to) => {
+    if (from === to || to < 0 || to >= categories.length) return
+    const next = moveInArray(categories, from, to)
+    setCategories(next)
+    await persistOrder(
+      next.map((cat, i) => supabase.from("cv_timeline").update({ category_order: i }).eq("category", cat)),
+      "category"
+    )
+  }
+
+  const reorderEntries = async (from, to) => {
+    if (from === to || to < 0 || to >= categoryEntries.length) return
+    const next = moveInArray(categoryEntries, from, to)
+    const ids = new Set(next.map(e => e.id))
+    setTimeline([...timeline.filter(e => !ids.has(e.id)), ...next])
+    await persistOrder(
+      next.map((entry, i) => supabase.from("cv_timeline").update({ sort_order: i }).eq("id", entry.id)),
+      "entry"
+    )
+  }
+
   if (loading) return <p className="text-gray-500">Loading CV data...</p>
 
   return (
@@ -302,10 +342,25 @@ export default function CVTab() {
       )}
 
       <div className="mb-8 bg-slate-50 border border-slate-200 rounded-lg p-6">
-        <h3 className="text-xl font-bold mb-4">Categories</h3>
+        <h3 className="text-xl font-bold mb-1">Categories</h3>
+        {categories.length > 1 && (
+          <p className="text-xs text-gray-500 mb-3">Drag categories (or use the arrows) to set the order shown on your CV.</p>
+        )}
         <div className="flex gap-2 flex-wrap mb-4">
-          {categories.map(cat => (
-            <div key={cat}>
+          {categories.map((cat, catIndex) => (
+            <div
+              key={cat}
+              draggable={renamingCategory !== cat}
+              onDragStart={() => setDraggedCategory(catIndex)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault()
+                if (draggedCategory !== null) reorderCategories(draggedCategory, catIndex)
+                setDraggedCategory(null)
+              }}
+              onDragEnd={() => setDraggedCategory(null)}
+              className={`rounded-lg ${draggedCategory === catIndex ? "opacity-50" : ""} ${categories.length > 1 ? "cursor-move" : ""}`}
+            >
               {renamingCategory === cat ? (
                 <div className="flex items-center gap-1">
                   <input
@@ -340,6 +395,26 @@ export default function CVTab() {
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
+                  {categories.length > 1 && (
+                    <div className="flex flex-col">
+                      <button
+                        onClick={() => reorderCategories(catIndex, catIndex - 1)}
+                        disabled={catIndex === 0}
+                        className="p-0.5 text-gray-500 hover:text-cyan-600 disabled:opacity-30"
+                        title="Move earlier"
+                      >
+                        <ChevronLeft size={14} />
+                      </button>
+                      <button
+                        onClick={() => reorderCategories(catIndex, catIndex + 1)}
+                        disabled={catIndex === categories.length - 1}
+                        className="p-0.5 text-gray-500 hover:text-cyan-600 disabled:opacity-30"
+                        title="Move later"
+                      >
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  )}
                   <button
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-4 py-2 rounded-lg font-medium transition ${
@@ -413,35 +488,38 @@ export default function CVTab() {
                   draggable
                   onDragStart={() => setDraggedItem({ entry, index })}
                   onDragOver={(e) => e.preventDefault()}
-                  onDrop={async (e) => {
+                  onDrop={(e) => {
                     e.preventDefault()
-                    if (!draggedItem || draggedItem.index === index) return
-
-                    const newEntries = [...categoryEntries]
-                    const [draggedEntry] = newEntries.splice(draggedItem.index, 1)
-                    newEntries.splice(index, 0, draggedEntry)
-
-                    try {
-                      for (let i = 0; i < newEntries.length; i++) {
-                        await supabase
-                          .from("cv_timeline")
-                          .update({ sort_order: i })
-                          .eq("id", newEntries[i].id)
-                      }
-                      setMessage({ type: "success", text: "Order updated" })
-                      await fetchData()
-                    } catch (error) {
-                      setMessage({ type: "error", text: "Failed to update order" })
-                    }
+                    if (draggedItem) reorderEntries(draggedItem.index, index)
                     setDraggedItem(null)
                   }}
-                  className={`bg-white border-2 rounded-lg p-4 flex justify-between items-start cursor-move transition ${
+                  onDragEnd={() => setDraggedItem(null)}
+                  className={`bg-white border-2 rounded-lg p-3 sm:p-4 flex justify-between items-start gap-2 cursor-move transition ${
                     draggedItem?.entry.id === entry.id
                       ? "border-cyan-600 bg-cyan-50 opacity-50"
                       : "border-gray-300 hover:border-cyan-400"
                   }`}
                 >
-                  <div className="flex-1 flex gap-4">
+                  <div className="flex flex-col items-center text-gray-400 -ml-1">
+                    <button
+                      onClick={() => reorderEntries(index, index - 1)}
+                      disabled={index === 0}
+                      className="p-0.5 hover:text-cyan-600 disabled:opacity-30"
+                      title="Move up"
+                    >
+                      <ChevronUp size={16} />
+                    </button>
+                    <GripVertical size={16} className="hidden sm:block" />
+                    <button
+                      onClick={() => reorderEntries(index, index + 1)}
+                      disabled={index === categoryEntries.length - 1}
+                      className="p-0.5 hover:text-cyan-600 disabled:opacity-30"
+                      title="Move down"
+                    >
+                      <ChevronDown size={16} />
+                    </button>
+                  </div>
+                  <div className="flex-1 min-w-0 flex gap-4">
                     {entry.logo_url && (
                       <img src={entry.logo_url} alt={entry.organization} className="w-20 h-20 object-cover rounded flex-shrink-0" />
                     )}
