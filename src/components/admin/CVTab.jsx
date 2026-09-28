@@ -17,6 +17,8 @@ export default function CVTab() {
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [renamingCategory, setRenamingCategory] = useState(null)
   const [renameCategoryValue, setRenameCategoryValue] = useState("")
+  const [isCreatingNewEntry, setIsCreatingNewEntry] = useState(false)
+  const [draggedItem, setDraggedItem] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -28,6 +30,7 @@ export default function CVTab() {
         const { data: timelineData, error: timelineError } = await supabase
           .from("cv_timeline")
           .select("*")
+          .order("sort_order", { ascending: true })
           .order("start_date", { ascending: false })
 
         if (timelineError) throw timelineError
@@ -126,41 +129,17 @@ export default function CVTab() {
     }
   }
 
-  const handleAddNewEntry = async () => {
-    try {
-      if (!supabase) {
-        setMessage({ type: "error", text: "Supabase not configured" })
-        return
-      }
-
-      const { data: inserted, error } = await supabase
-        .from("cv_timeline")
-        .insert([{
-          category: selectedCategory,
-          title: "",
-          organization: "",
-          description: "",
-          start_date: new Date().toISOString()
-        }])
-        .select()
-
-      if (error) throw error
-
-      if (inserted?.[0]) {
-        setEditingEntry(inserted[0])
-        reset({
-          title: inserted[0].title,
-          organization: inserted[0].organization,
-          description: inserted[0].description,
-          start_date: inserted[0].start_date?.split("T")[0] || "",
-          end_date: inserted[0].end_date?.split("T")[0] || "",
-          category: inserted[0].category
-        })
-        setMessage({ type: "success", text: "Entry created! You can now add a logo." })
-      }
-    } catch (error) {
-      setMessage({ type: "error", text: "Failed to create entry: " + error.message })
-    }
+  const handleAddNewEntry = () => {
+    setIsCreatingNewEntry(true)
+    setEditingEntry(null)
+    reset({
+      title: "",
+      organization: "",
+      description: "",
+      start_date: new Date().toISOString().split("T")[0],
+      end_date: "",
+      category: selectedCategory
+    })
   }
 
   const handleLogoUpload = async (e, entryId) => {
@@ -253,7 +232,10 @@ export default function CVTab() {
           .eq("id", editingEntry.id)
 
         if (error) throw error
-      } else {
+        setMessage({ type: "success", text: "Entry saved successfully" })
+        setEditingEntry(null)
+        setIsCreatingNewEntry(false)
+      } else if (isCreatingNewEntry) {
         const { data: inserted, error } = await supabase
           .from("cv_timeline")
           .insert([{
@@ -268,10 +250,10 @@ export default function CVTab() {
 
         if (error) throw error
 
-        // Auto-switch to edit mode so user can upload logo
         if (inserted?.[0]) {
           setMessage({ type: "success", text: "Entry created! Now you can upload a logo." })
           setEditingEntry(inserted[0])
+          setIsCreatingNewEntry(false)
           reset({
             title: inserted[0].title,
             organization: inserted[0].organization,
@@ -285,8 +267,6 @@ export default function CVTab() {
         }
       }
 
-      setMessage({ type: "success", text: "Entry saved successfully" })
-      setEditingEntry(null)
       reset()
       await fetchData()
     } catch (error) {
@@ -427,8 +407,40 @@ export default function CVTab() {
           <div className="mb-8">
             <h3 className="text-xl font-bold mb-4">{selectedCategory} Entries</h3>
             <div className="space-y-3">
-              {categoryEntries.map(entry => (
-                <div key={entry.id} className="bg-white border border-gray-300 rounded-lg p-4 flex justify-between items-start">
+              {categoryEntries.map((entry, index) => (
+                <div
+                  key={entry.id}
+                  draggable
+                  onDragStart={() => setDraggedItem({ entry, index })}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={async (e) => {
+                    e.preventDefault()
+                    if (!draggedItem || draggedItem.index === index) return
+
+                    const newEntries = [...categoryEntries]
+                    const [draggedEntry] = newEntries.splice(draggedItem.index, 1)
+                    newEntries.splice(index, 0, draggedEntry)
+
+                    try {
+                      for (let i = 0; i < newEntries.length; i++) {
+                        await supabase
+                          .from("cv_timeline")
+                          .update({ sort_order: i })
+                          .eq("id", newEntries[i].id)
+                      }
+                      setMessage({ type: "success", text: "Order updated" })
+                      await fetchData()
+                    } catch (error) {
+                      setMessage({ type: "error", text: "Failed to update order" })
+                    }
+                    setDraggedItem(null)
+                  }}
+                  className={`bg-white border-2 rounded-lg p-4 flex justify-between items-start cursor-move transition ${
+                    draggedItem?.entry.id === entry.id
+                      ? "border-cyan-600 bg-cyan-50 opacity-50"
+                      : "border-gray-300 hover:border-cyan-400"
+                  }`}
+                >
                   <div className="flex-1 flex gap-4">
                     {entry.logo_url && (
                       <img src={entry.logo_url} alt={entry.organization} className="w-20 h-20 object-cover rounded flex-shrink-0" />
@@ -443,6 +455,7 @@ export default function CVTab() {
                     <button
                       onClick={() => {
                         setEditingEntry(entry)
+                        setIsCreatingNewEntry(false)
                         reset({
                           title: entry.title,
                           organization: entry.organization,
@@ -477,7 +490,7 @@ export default function CVTab() {
             </button>
           </div>
 
-          {(editingEntry || !editingEntry) && (
+          {(editingEntry || isCreatingNewEntry) && (
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 max-w-2xl">
               <h3 className="text-xl font-bold mb-4">{editingEntry ? "Edit Entry" : "New Entry"}</h3>
 
@@ -584,11 +597,12 @@ export default function CVTab() {
                   >
                     {submitting ? "Saving..." : "Save Entry"}
                   </button>
-                  {editingEntry && (
+                  {(editingEntry || isCreatingNewEntry) && (
                     <button
                       type="button"
                       onClick={() => {
                         setEditingEntry(null)
+                        setIsCreatingNewEntry(false)
                         reset()
                       }}
                       className="bg-gray-400 text-white px-6 py-2 rounded-lg hover:bg-gray-500 transition font-semibold"
