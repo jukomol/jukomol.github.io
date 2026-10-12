@@ -3,8 +3,66 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { format } from 'date-fns'
 import { Search } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+
+const SUMMARY_CHARS = 320
+
+function getExcerpt(content, title) {
+  const lines = content
+    .replace(/```[\s\S]*?(```|$)/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && !line.startsWith('|') && !/^([-*_]\s*){3,}$/.test(line))
+    .map(line => line.replace(/^#{1,6}\s+/, '').replace(/^>\s?/, '').replace(/^([-*+]|\d+[.)])\s+(\[[ xX]\]\s+)?/, ''))
+  if (lines[0] && lines[0].toLowerCase() === title.trim().toLowerCase()) lines.shift()
+  const text = lines
+    .join(' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/(\*\*|__|~~|`)/g, '')
+    .replace(/(^|\s)[*_](\S[^*_]*?)[*_](?=\s|[.,;:!?]|$)/g, '$1$2')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (text.length <= SUMMARY_CHARS) return text
+  const cut = text.slice(0, SUMMARY_CHARS)
+  return `${cut.slice(0, cut.lastIndexOf(' ') > 0 ? cut.lastIndexOf(' ') : SUMMARY_CHARS)}…`
+}
+
+function BlogCard({ blog, featured = false }) {
+  const excerpt = getExcerpt(blog.content || '', blog.title || '')
+  return (
+    <Link
+      to={`/blog/${blog.slug}`}
+      className={`flex min-w-0 flex-col rounded-lg p-6 transition ${
+        featured
+          ? 'bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-500 hover:shadow-xl'
+          : 'bg-white border-2 border-gray-200 hover:shadow-lg hover:border-cyan-300'
+      }`}
+    >
+      <h3 className={`font-bold leading-8 text-slate-900 mb-2 truncate ${featured ? 'text-2xl' : 'text-xl'}`} title={blog.title}>
+        {blog.title}
+      </h3>
+      <div className="flex items-center gap-2 mb-3 text-sm whitespace-nowrap overflow-hidden">
+        <span className="text-gray-600 font-medium">{format(new Date(blog.created_at), 'MMMM dd, yyyy')}</span>
+        {blog.author && <span className="text-gray-500 truncate">by {blog.author}</span>}
+      </div>
+      <p className="text-gray-700 text-[15px] leading-6 line-clamp-3 h-18 mb-4">{excerpt}</p>
+      <div className="flex gap-2 h-6 overflow-hidden">
+        {blog.tags?.map((tag, idx) => (
+          <span
+            key={idx}
+            className={`text-xs px-3 py-1 rounded-full whitespace-nowrap ${
+              featured ? 'bg-cyan-200 text-cyan-800 font-semibold' : 'bg-gray-100 text-gray-700'
+            }`}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </Link>
+  )
+}
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([])
@@ -67,33 +125,7 @@ export default function Blog() {
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6 text-cyan-600 font-semibold">✨ Featured Articles</h2>
             <div className="grid gap-6">
-              {pinnedBlogs.map(blog => (
-                <Link
-                  key={blog.id}
-                  to={`/blog/${blog.slug}`}
-                  className="block bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-500 rounded-lg p-6 hover:shadow-xl transition hover:scale-105 transform"
-                >
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">{blog.title}</h3>
-                  <div className="flex items-center gap-2 mb-3">
-                    <p className="text-sm text-gray-600 font-medium">
-                      {format(new Date(blog.created_at), 'MMMM dd, yyyy')}
-                    </p>
-                    {blog.author && <p className="text-sm text-gray-500">by {blog.author}</p>}
-                  </div>
-                  <div className="text-gray-700 mb-3 line-clamp-2 leading-relaxed prose prose-sm max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.content.substring(0, 150)}...</ReactMarkdown>
-                  </div>
-                  {blog.tags && blog.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {blog.tags.map((tag, idx) => (
-                        <span key={idx} className="text-xs bg-cyan-200 text-cyan-800 px-3 py-1 rounded-full font-semibold">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </Link>
-              ))}
+              {pinnedBlogs.map(blog => <BlogCard key={blog.id} blog={blog} featured />)}
             </div>
           </div>
         )}
@@ -103,33 +135,7 @@ export default function Blog() {
           {pinnedBlogs.length > 0 && <h2 className="text-2xl font-bold mb-6 text-slate-900 font-semibold">All Articles</h2>}
           {regularBlogs.length > 0 ? (
             <div className="grid gap-6">
-              {regularBlogs.map(blog => (
-                <Link
-                  key={blog.id}
-                  to={`/blog/${blog.slug}`}
-                  className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-cyan-300 transition"
-                >
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">{blog.title}</h3>
-                  <div className="flex items-center gap-2 mb-3">
-                    <p className="text-sm text-gray-600 font-medium">
-                      {format(new Date(blog.created_at), 'MMMM dd, yyyy')}
-                    </p>
-                    {blog.author && <p className="text-sm text-gray-500">by {blog.author}</p>}
-                  </div>
-                  <div className="text-gray-700 mb-3 line-clamp-2 leading-relaxed prose prose-sm max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.content.substring(0, 150)}...</ReactMarkdown>
-                  </div>
-                  {blog.tags && blog.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {blog.tags.map((tag, idx) => (
-                        <span key={idx} className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </Link>
-              ))}
+              {regularBlogs.map(blog => <BlogCard key={blog.id} blog={blog} />)}
             </div>
           ) : (
             <div className="text-center py-12 bg-slate-50 rounded-lg border border-slate-200">
