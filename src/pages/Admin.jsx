@@ -9,10 +9,19 @@ import CVTab from '../components/admin/CVTab'
 import BlogsTab from '../components/admin/BlogsTab'
 import NotesTab from '../components/admin/NotesTab'
 
+const TABS = [
+  { id: 'notes', label: 'Notes' },
+  { id: 'blogs', label: 'Blogs' },
+  { id: 'news', label: 'News' },
+  { id: 'publications', label: 'Publications' },
+  { id: 'profile', label: 'Profile' },
+  { id: 'cv', label: 'CV' },
+]
+
 export default function Admin() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('profile')
+  const [activeTab, setActiveTab] = useState('notes')
 
   useEffect(() => {
     checkAuth()
@@ -35,7 +44,7 @@ export default function Admin() {
     if (supabase) {
       await supabase.auth.signOut()
       setUser(null)
-      setActiveTab('profile')
+      setActiveTab('notes')
     }
   }
 
@@ -67,17 +76,17 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto py-4 sm:py-8 px-3 sm:px-4">
         <div className="flex gap-1 mb-4 sm:mb-8 border-b-2 border-gray-200 overflow-x-auto no-scrollbar bg-white rounded-t-lg">
-          {['profile', 'news', 'publications', 'cv', 'blogs', 'notes'].map(tab => (
+          {TABS.map(({ id: tab, label }) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 sm:px-6 py-3 font-semibold capitalize whitespace-nowrap transition ${
+              className={`px-4 sm:px-6 py-3 font-semibold whitespace-nowrap transition ${
                 activeTab === tab
                   ? 'text-cyan-600 border-b-3 border-cyan-600 bg-cyan-50'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              {tab}
+              {label}
             </button>
           ))}
         </div>
